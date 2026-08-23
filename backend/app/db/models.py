@@ -35,6 +35,9 @@ class SportEvent(Base):
     home_team: Mapped[str | None] = mapped_column(String(100), nullable=True)
     away_team: Mapped[str | None] = mapped_column(String(100), nullable=True)
     participants: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    final_home_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    final_away_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    final_positions: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
 
 class Prediction(Base):
