@@ -13,6 +13,7 @@ from app.llm.router import router as llm_router
 from app.predictions.router import router as predictions_router
 from app.scheduler import shutdown_scheduler, start_scheduler
 from app.scoring.router import router as scoring_router
+from app.stats.router import router as stats_router
 from app.users.router import router as users_router
 
 settings = get_settings()
@@ -35,6 +36,7 @@ app.include_router(users_router)
 app.include_router(predictions_router)
 app.include_router(scoring_router)
 app.include_router(llm_router)
+app.include_router(stats_router)
 
 
 @app.get("/health")
