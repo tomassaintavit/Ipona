@@ -41,6 +41,52 @@ class LLMClient:
         except Exception:
             return await self._call(fallback, system_prompt, user_prompt, session)
 
+    async def chat_with_tools(self, messages: list[dict], tools: list[dict], session: AsyncSession) -> dict:
+        settings = get_settings()
+        primary = settings.llm_provider
+        fallback = next(name for name in PROVIDERS if name != primary)
+        try:
+            return await self._call_tools(primary, messages, tools, session)
+        except Exception:
+            return await self._call_tools(fallback, messages, tools, session)
+
+    async def _call_tools(self, provider: str, messages: list[dict], tools: list[dict], session: AsyncSession) -> dict:
+        import json
+
+        settings = get_settings()
+        config = PROVIDERS[provider]
+        api_key = getattr(settings, config["key_setting"])
+        model = getattr(settings, config["model_setting"])
+        client = AsyncOpenAI(base_url=config["base_url"], api_key=api_key)
+        response = await client.chat.completions.create(
+            model=model,
+            messages=messages,
+            tools=tools,
+        )
+        usage = response.usage
+        session.add(
+            LLMCall(
+                provider=provider,
+                model=model,
+                prompt_tokens=usage.prompt_tokens,
+                completion_tokens=usage.completion_tokens,
+                total_tokens=usage.total_tokens,
+            )
+        )
+        await session.commit()
+        message = response.choices[0].message
+        result = {"role": "assistant", "content": message.content}
+        if message.tool_calls:
+            result["tool_calls"] = [
+                {
+                    "id": tc.id,
+                    "type": "function",
+                    "function": {"name": tc.function.name, "arguments": tc.function.arguments},
+                }
+                for tc in message.tool_calls
+            ]
+        return result
+
     async def _call(self, provider: str, system_prompt: str, user_prompt: str, session: AsyncSession) -> dict:
         settings = get_settings()
         config = PROVIDERS[provider]

@@ -8,6 +8,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from app.auth.router import router as auth_router
+from app.chat.router import router as chat_router
 from app.core.config import get_settings
 from app.core.rate_limit import limiter
 from app.events.router import router as events_router
@@ -39,6 +40,7 @@ app.include_router(predictions_router)
 app.include_router(scoring_router)
 app.include_router(llm_router)
 app.include_router(stats_router)
+app.include_router(chat_router)
 
 
 @app.get("/health")

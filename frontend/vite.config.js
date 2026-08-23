@@ -14,6 +14,7 @@ export default defineConfig({
       "/leaderboard": API_TARGET,
       "/stats": API_TARGET,
       "/llm": API_TARGET,
+      "/chat": API_TARGET,
     },
   },
   build: {

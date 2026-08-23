@@ -4,6 +4,7 @@ import Header from "./components/Header.jsx";
 import AuthLogin from "./components/AuthLogin.jsx";
 import AuthRegistro from "./components/AuthRegistro.jsx";
 import Eventos from "./components/Eventos.jsx";
+import ChatWidget from "./components/ChatWidget.jsx";
 import Tabla from "./components/Tabla.jsx";
 import Stats from "./components/Stats.jsx";
 
@@ -56,6 +57,7 @@ export default function App() {
         {vista === "tabla" && <Tabla onToast={showToast} />}
         {vista === "stats" && <Stats onToast={showToast} />}
       </main>
+      <ChatWidget />
       {toast && <div id="toast">{toast}</div>}
     </>
   );
