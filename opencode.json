@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "PROJECT_SPEC.md",
+    ".ai/standards/AI_RULES.md",
+    ".ai/processes/ENGINEERING_PROCESS.md",
+    ".ai/checklists/DEFINITION_OF_DONE.md",
+    ".ai/skills/SKILLS_INDEX.md"
+  ],
+  "skills": {
+    "paths": [".ai/skills"]
+  }
+}

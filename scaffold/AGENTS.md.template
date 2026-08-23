@@ -1,0 +1,165 @@
+# AI Engineering Standard
+
+Version: 0.1.0
+
+## Purpose
+
+This repository follows the AI Engineering Standard.
+
+The objective of this standard is to ensure that AI agents work using consistent engineering practices, explicit planning, incremental changes, and verifiable results.
+
+---
+
+# Project Initialization
+
+Before starting any engineering task, verify whether `PROJECT_SPEC.md` exists.
+
+If `PROJECT_SPEC.md` does not exist:
+
+1. Execute the **Project Discovery** skill (`.ai/skills/project-discovery/SKILL.md`).
+2. Create `PROJECT_SPEC.md` using the project's standard template (`.ai/specifications/PROJECT_SPEC.template.md`).
+3. Fill the template using the information collected from the user.
+4. Present the completed specification for user review.
+5. Wait for explicit user approval.
+6. Continue with the engineering workflow.
+
+If `PROJECT_SPEC.md` exists but is incomplete, outdated, or inconsistent:
+
+- Do not make assumptions.
+- Ask only for the missing information required to continue.
+- Update `PROJECT_SPEC.md` after receiving user confirmation.
+
+---
+
+# Bootstrap (Required First Step)
+
+Before any task, run the bootstrap script to load mandatory context:
+
+```bash
+./bootstrap.sh
+```
+
+Options:
+- `./bootstrap.sh` — loads mandatory files only
+- `./bootstrap.sh --git` — also loads GIT_RULES.md
+- `./bootstrap.sh --test` — also loads TESTING_RULES.md
+- `./bootstrap.sh --security` — also loads SECURITY_RULES.md
+- `./bootstrap.sh --deps` — also loads DEPENDENCY_RULES.md
+- `./bootstrap.sh --docs` — also loads DOCUMENTATION_RULES.md
+- `./bootstrap.sh --all` — loads all standards
+
+The bootstrap script verifies PROJECT_SPEC.md exists and outputs all required context to stdout.
+
+---
+
+# Mandatory Reading
+
+Before analyzing, planning, or implementing any task, read the following documents in order:
+
+1. `PROJECT_SPEC.md`
+2. `.ai/standards/AI_RULES.md`
+3. `.ai/processes/ENGINEERING_PROCESS.md`
+4. `.ai/checklists/DEFINITION_OF_DONE.md`
+5. `.ai/skills/SKILLS_INDEX.md` (to check for applicable skills)
+
+The AI agent MUST understand these documents before proposing or implementing any changes.
+
+---
+
+# Conditional Reading
+
+Load additional documents only when they are relevant to the current task.
+
+## Git Changes
+
+Load:
+
+```
+.ai/standards/GIT_RULES.md
+```
+
+When:
+
+- Planning implementation commits.
+- Proposing commit messages.
+- Reviewing repository changes.
+
+---
+
+## Testing
+
+Load:
+
+```
+.ai/standards/TESTING_RULES.md
+```
+
+When:
+
+- Adding new functionality.
+- Modifying existing behavior.
+- Creating or updating tests.
+
+---
+
+## Dependencies
+
+Load:
+
+```
+.ai/standards/DEPENDENCY_RULES.md
+```
+
+When:
+
+- Adding new dependencies.
+- Updating existing packages.
+- Modifying project infrastructure.
+
+---
+
+## Security
+
+Load:
+
+```
+.ai/standards/SECURITY_RULES.md
+```
+
+When:
+
+- Handling authentication or authorization.
+- Managing secrets or credentials.
+- Processing sensitive data.
+
+---
+
+## Documentation
+
+Load:
+
+```
+.ai/standards/DOCUMENTATION_RULES.md
+```
+
+When:
+
+- Updating public APIs.
+- Changing architecture.
+- Adding user-facing features.
+
+---
+
+# General Rules
+
+The AI agent MUST:
+
+- Follow the engineering process defined in `.ai/processes/ENGINEERING_PROCESS.md`.
+- Run `./bootstrap.sh` before starting any task.
+- Load applicable standards before performing specialized tasks.
+- Check `.ai/skills/SKILLS_INDEX.md` for relevant skills.
+- Ask for clarification whenever requirements are ambiguous or incomplete.
+- Never make undocumented architectural decisions.
+- Never assume missing project requirements.
+- Wait for explicit user approval before creating Git commits.
+- Respect the pre-commit hook (Conventional Commits enforced automatically).
