@@ -33,6 +33,8 @@ async def build_context(session: AsyncSession, events: list[SportEvent]) -> str:
         for team in _teams(event):
             form = await _team_form(session, team)
             context[team] = form
+        if event.favorito:
+            context["favorito_casas_de_apuestas"] = event.favorito
         lines.append(json.dumps(context, ensure_ascii=False))
     return "\n".join(lines)
 
@@ -65,6 +67,9 @@ async def _team_form(session: AsyncSession, team: str) -> list[dict]:
 SYSTEM_PROMPT = (
     "Sos un analista deportivo que compite en un juego de predicciones. "
     "Recibis un contexto con eventos proximos y estadisticas recientes de los equipos. "
+    "Cuando aparezca 'favorito_casas_de_apuestas', es el equipo que las casas de "
+    "apuestas consideran favorito segun dinero apostado: usalo como senal adicional, "
+    "no como verdad absoluta. "
     "Devolves SIEMPRE un objeto JSON con la clave 'predicciones', una lista donde cada "
     "elemento tiene 'event_id' y para futbol/basquet 'home_score' y 'away_score' "
     "(enteros >= 0), o para formula_1 'positions' (lista con los 3 pilotos del podio "

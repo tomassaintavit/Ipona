@@ -44,6 +44,7 @@ async def _upsert_event(session: AsyncSession, domain_event: DomainEvent) -> Spo
     db_event.home_team = domain_event.home_team
     db_event.away_team = domain_event.away_team
     db_event.participants = domain_event.participants or None
+    db_event.favorito = domain_event.favorito
     return db_event
 
 

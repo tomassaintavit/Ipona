@@ -84,7 +84,38 @@ def _parse_event(raw: dict, sport: Sport, league: str) -> SportEvent:
         home_team=_team_name(home),
         away_team=_team_name(away),
         participants=[_athlete_name(c) for c in competitors],
+        favorito=_favorito(competition, competitors),
     )
+
+
+def _favorito(competition: dict, competitors: list[dict]) -> str | None:
+    odds = next((o for o in competition.get("odds") or [] if o), None)
+    if not odds:
+        return None
+    moneyline = odds.get("moneyline") or {}
+
+    def _valor(side: str) -> int | None:
+        try:
+            return int(((moneyline.get(side) or {}).get("close") or {}).get("odds"))
+        except (TypeError, ValueError):
+            return None
+
+    local, visitante = _valor("home"), _valor("away")
+    home_c = next((c for c in competitors if c.get("homeAway") == "home"), None)
+    away_c = next((c for c in competitors if c.get("homeAway") == "away"), None)
+
+    if local is not None and (visitante is None or local < visitante):
+        return _team_name(home_c)
+    if visitante is not None:
+        return _team_name(away_c)
+
+    detalles = (odds.get("details") or "").split(" ")[0].strip()
+    if detalles:
+        for c in competitors:
+            equipo = c.get("team") or {}
+            if (equipo.get("abbreviation") or "").upper() == detalles.upper():
+                return equipo.get("displayName")
+    return None
 
 
 def _parse_result(raw: dict, event: SportEvent) -> EventResult:

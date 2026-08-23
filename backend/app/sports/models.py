@@ -25,6 +25,7 @@ class SportEvent(BaseModel):
     home_team: str | None = None
     away_team: str | None = None
     participants: list[str] = []
+    favorito: str | None = None
 
 
 class EventResult(BaseModel):

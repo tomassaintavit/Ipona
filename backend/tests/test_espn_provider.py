@@ -7,7 +7,17 @@ from app.sports.espn import BASE_URL, ESPNProvider
 from app.sports.models import EventStatus, Sport
 
 
-def _soccer_scoreboard(event_id, state, completed, home_score=None, away_score=None):
+def _odds_moneyline(home_odds, away_odds):
+    return {
+        "provider": {"name": "DraftKings"},
+        "moneyline": {
+            "home": {"close": {"odds": home_odds}},
+            "away": {"close": {"odds": away_odds}},
+        },
+    }
+
+
+def _soccer_scoreboard(event_id, state, completed, home_score=None, away_score=None, odds=None):
     return {
         "leagues": [{"name": "Argentine Liga Profesional de Fútbol"}],
         "events": [
@@ -20,15 +30,16 @@ def _soccer_scoreboard(event_id, state, completed, home_score=None, away_score=N
                         "competitors": [
                             {
                                 "homeAway": "home",
-                                "team": {"displayName": "Barracas Central"},
+                                "team": {"displayName": "Barracas Central", "abbreviation": "BAR"},
                                 "score": home_score,
                             },
                             {
                                 "homeAway": "away",
-                                "team": {"displayName": "Platense"},
+                                "team": {"displayName": "Platense", "abbreviation": "PLA"},
                                 "score": away_score,
                             },
-                        ]
+                        ],
+                        **({"odds": [odds]} if odds else {}),
                     }
                 ],
             }
@@ -85,6 +96,49 @@ async def test_get_day_events_parses_soccer_match():
     assert event.away_team == "Platense"
     assert event.status is EventStatus.SCHEDULED
     assert event.start_time_utc == dt.datetime(2026, 8, 23, 17, 45, tzinfo=dt.UTC)
+    assert event.favorito is None
+
+
+async def test_detecta_favorito_por_moneyline():
+    routes = {
+        "/soccer/arg.1/scoreboard": _soccer_scoreboard(
+            "1", "pre", False, odds=_odds_moneyline("-180", "+150")
+        ),
+    }
+    provider = ESPNProvider(client=make_client(routes))
+
+    events = await provider.get_day_events(dt.date(2026, 8, 23), Sport.FOOTBALL)
+
+    assert events[0].favorito == "Barracas Central"
+
+
+async def test_favorito_visitante_cuando_su_cuota_gana():
+    routes = {
+        "/soccer/arg.1/scoreboard": _soccer_scoreboard(
+            "2", "pre", False, odds=_odds_moneyline("+200", "-150")
+        ),
+    }
+    provider = ESPNProvider(client=make_client(routes))
+
+    events = await provider.get_day_events(dt.date(2026, 8, 23), Sport.FOOTBALL)
+
+    assert events[0].favorito == "Platense"
+
+
+async def test_favorito_sin_moneyline_usa_details_con_abreviatura():
+    routes = {
+        "/soccer/arg.1/scoreboard": _soccer_scoreboard(
+            "3",
+            "pre",
+            False,
+            odds={"provider": {"name": "DraftKings"}, "details": "PLA -140"},
+        ),
+    }
+    provider = ESPNProvider(client=make_client(routes))
+
+    events = await provider.get_day_events(dt.date(2026, 8, 23), Sport.FOOTBALL)
+
+    assert events[0].favorito == "Platense"
 
 
 async def test_get_day_events_queries_all_football_leagues():
