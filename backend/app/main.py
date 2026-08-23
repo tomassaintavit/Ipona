@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -9,12 +11,21 @@ from app.core.rate_limit import limiter
 from app.events.router import router as events_router
 from app.llm.router import router as llm_router
 from app.predictions.router import router as predictions_router
+from app.scheduler import shutdown_scheduler, start_scheduler
 from app.scoring.router import router as scoring_router
 from app.users.router import router as users_router
 
 settings = get_settings()
 
-app = FastAPI(title=settings.app_name)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_scheduler()
+    yield
+    shutdown_scheduler()
+
+
+app = FastAPI(title=settings.app_name, lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)

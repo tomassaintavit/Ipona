@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     cerebras_model: str = "gpt-oss-120b"
     groq_model: str = "openai/gpt-oss-120b"
+    scheduler_enabled: bool = True
 
 
 @lru_cache
