@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     app_name: str = "Ipona"
     environment: str = "development"
+    database_url: str = "postgresql+asyncpg://ipona:ipona_dev@localhost:5432/ipona"
 
 
 @lru_cache

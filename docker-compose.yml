@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ipona
+      POSTGRES_PASSWORD: ipona_dev
+      POSTGRES_DB: ipona
+    ports:
+      - "5432:5432"
+    volumes:
+      - ipona_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ipona -d ipona"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  ipona_pgdata:
