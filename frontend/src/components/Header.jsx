@@ -2,7 +2,7 @@ export default function Header({ vista, onVista, onLogout }) {
   const botones = [
     ["eventos", "Eventos"],
     ["tabla", "Tabla"],
-    ["stats", "Stats"],
+    ["stats", "Estadísticas"],
   ];
   return (
     <header>

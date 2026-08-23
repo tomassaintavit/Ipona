@@ -32,7 +32,6 @@ export default function AuthLogin({ onLogin, irARegistro }) {
       <div className="auth-hero">
         <img src="/assets/logo.png" alt="" className="auth-logo" />
         <span className="wordmark grande">ipOna</span>
-        <p className="tagline">Predicí, competí y ganale a la IA</p>
       </div>
       <form className="card form-card" onSubmit={handleSubmit}>
         <label>
