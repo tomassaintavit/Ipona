@@ -1,214 +1,130 @@
-# AI Engineering Standard
+# ipOna
 
-A modular engineering framework for AI-assisted software development. Ensures AI agents (opencode, Claude Code, Cursor, etc.) work with consistent practices, explicit planning, incremental changes, and verifiable results.
+Juego de predicciones deportivas para un grupo privado de amigos (<6 jugadores) con un competidor IA que predice usando datos históricos. Todo corre en servicios gratuitos.
 
-**Version**: 0.1.0
+Predecí el resultado de partidos de fútbol (Liga Profesional Argentina, Premier, Champions, Libertadores, Sudamericana, Serie A, LaLiga), NBA y F1. Sumá puntos por marcador exacto o por acertar quién gana/empata/pierde. En F1 se predice el podio. La IA (`ipona-ia`) compite en la tabla como un jugador más.
 
 ---
 
-## Quick Start
+## Stack
 
-### 1. Create a Project from the Template
+| Componente | Tecnología |
+|---|---|
+| Backend | Python 3.12 + FastAPI (async) |
+| Base de datos | PostgreSQL 16 (Docker en dev; Neon/Supabase en prod) |
+| Frontend | PWA vanilla JS/CSS (sin build), servida por FastAPI |
+| Datos deportivos | API pública de ESPN ([ADR-001](docs/adr/001-usar-api-espn-como-fuente-de-datos.md)) |
+| LLM | Cerebras / Groq vía SDK OpenAI (`openai/gpt-oss-120b`), con failover |
+| Jobs | APScheduler embebido |
+| Tests | pytest |
+
+## Cómo levantar el proyecto
+
+### Requisitos
+
+- Docker
+- Python 3.12 con virtualenv en `venv/` en la raíz del repo
+
+### 1. Levantar la base de datos
 
 ```bash
-# Option A: GitHub template (recommended)
-gh repo create my-project --template tomassaintavit/ai-engineering-standard --public
-cd my-project
-
-# Option B: Direct clone
-git clone https://github.com/tomassaintavit/ai-engineering-standard my-project
-cd my-project
-rm -rf .git && git init  # Fresh history
+docker compose up -d db
 ```
 
-### 2. Restart Your AI Agent
-
-opencode reads its configuration (including `skills.paths`) once at startup, not per session. After cloning, **quit and restart opencode** so it registers the skills from `.ai/skills/`.
-
-### 3. Run Project Discovery
-
-Your new project has no `PROJECT_SPEC.md` yet — by design. When you open opencode in the project:
-
-- The **`project-discovery`** skill auto-invokes (its description fires when `PROJECT_SPEC.md` is missing).
-- It runs a structured interview (**17 questions**) and creates `PROJECT_SPEC.md` from `.ai/specifications/PROJECT_SPEC.template.md`.
-- If it doesn't auto-fire, invoke it explicitly: *"run the project-discovery skill"*.
-
-Once `PROJECT_SPEC.md` exists, the skill stays dormant.
-
-### 4. Start Working
+### 2. Instalar dependencias (solo la primera vez)
 
 ```bash
-# Load context and verify setup
-./bootstrap.sh
-
-# Your AI agent reads AGENTS.md automatically
-# Follow the engineering process: bootstrap → understand → plan → implement → validate → commit
+venv/bin/pip install -r backend/requirements-dev.txt
 ```
 
----
-
-## How It Works
-
-### For the AI Agent
-
-1. **Reads `AGENTS.md`** — Entry point with mandatory reading order
-2. **Runs `./bootstrap.sh`** — Loads context, verifies `PROJECT_SPEC.md` exists
-3. **Uses runtime skills** — `opencode.json` registers `.ai/skills/` via `skills.paths`; the `project-discovery` skill auto-invokes when no spec exists
-4. **Follows `ENGINEERING_PROCESS.md`** — 10-phase workflow with exit criteria
-5. **Loads conditional standards** — Only when task requires them
-6. **Commits via pre-commit hook** — Enforces Conventional Commits
-
-### For You (Human)
-
-- **`PROJECT_SPEC.md`** — Static project contract (what & why)
-- **`PROJECT_STATUS.md`** — Live project dashboard (features, decisions, debt, risks)
-- **`bootstrap.sh --all`** — Load all standards for review
-- **`.ai/templates/`** — ADR, Threat Model, Migration Guide templates
-- **Pre-commit hook** — Blocks non-conventional commit messages
-
----
-
-## Repository Structure
-
-```
-.ai/
-├── standards/           # 6 engineering standards
-│   ├── AI_RULES.md          # Core principles (simplicity, scope, decisions)
-│   ├── GIT_RULES.md         # Atomic commits, Conventional Commits
-│   ├── TESTING_RULES.md     # Pyramid, organization, coverage, property-based
-│   ├── DEPENDENCY_RULES.md  # Pinning, SCA, licensing, supply chain
-│   ├── SECURITY_RULES.md    # Auth, headers, rate limiting, threat modeling
-│   └── DOCUMENTATION_RULES.md # Diátaxis, C4, changelog, executable examples
-├── processes/
-│   └── ENGINEERING_PROCESS.md  # Unified 10-phase workflow
-├── checklists/
-│   └── DEFINITION_OF_DONE.md   # Completion criteria
-├── specifications/
-│   ├── PROJECT_SPEC.template.md   # Static contract template
-│   └── PROJECT_STATUS.md          # Live project dashboard
-├── skills/
-│   ├── SKILLS_INDEX.md         # Skill catalog
-│   └── project-discovery/
-│       └── SKILL.md            # 17-question discovery interview
-└── templates/
-    ├── ADR.template.md
-    ├── THREAT_MODEL.template.md
-    └── MIGRATION_GUIDE.template.md
-
-Root files:
-├── AGENTS.md              # Canonical agent config (all agents)
-├── CLAUDE.md              # Claude Code entry point
-├── opencode.json          # opencode config
-├── bootstrap.sh           # Context loader
-├── MANIFEST.md            # Architecture index
-├── VERSION                # 0.1.0
-
-scaffold/ (starter files to copy into a new project root):
-├── AGENTS.md.template
-├── CLAUDE.md.template
-└── opencode.json.template
-```
-
----
-
-## Scaffold & Templates
-
-### `scaffold/` — Starters for projects that don't come from the template
-
-If you created your project via the GitHub template or clone, the root files (`AGENTS.md`, `CLAUDE.md`, `opencode.json`) are already there — skip this section.
-
-Use `scaffold/` when adopting the standard in an **existing project** that has no AI configuration yet:
+### 3. Aplicar migraciones
 
 ```bash
-cd existing-project
-cp ../ai-engineering-standard/scaffold/AGENTS.md.template ./AGENTS.md
-cp ../ai-engineering-standard/scaffold/CLAUDE.md.template ./CLAUDE.md
-cp ../ai-engineering-standard/scaffold/opencode.json.template ./opencode.json
-cp -r ../ai-engineering-standard/.ai ./
-cp ../ai-engineering-standard/bootstrap.sh ./
+cd backend
+../venv/bin/alembic upgrade head
 ```
 
-Then restart your agent and run Project Discovery (Quick Start, step 3).
-
-### `.ai/templates/` — Document templates for during development
-
-These are not startup files. They are used while building the project:
-
-- `ADR.template.md` — Architecture Decision Records
-- `THREAT_MODEL.template.md` — Security threat modeling
-- `MIGRATION_GUIDE.template.md` — Breaking-change migrations
-
-Referenced by the standards in `.ai/standards/`; used only when those situations arise.
-
----
-
-## Key Commands
+### 4. Arrancar el servidor
 
 ```bash
-# Load mandatory context only
-./bootstrap.sh
-
-# Load with specific standards
-./bootstrap.sh --git --test --security
-
-# Load everything
-./bootstrap.sh --all
-
-# Verify all document versions match the VERSION file
-./bootstrap.sh --check-version
-
-# Invoke the project-discovery skill manually (inside opencode)
-# Ask: "run the project-discovery skill"
-
-# Verify commit message format
-git commit -m "feat(api): add user endpoint"  # ✅ passes
-git commit -m "added user endpoint"           # ❌ blocked
+# desde backend/
+../venv/bin/python -m uvicorn app.main:app --reload --port 8000
 ```
 
----
+Listo. Abrí **http://localhost:8000** — ahí vive la PWA completa.
 
-## Standards Overview
+Para probar desde el celular en tu red local:
 
-| Standard | When to Load | Key Rules |
-|----------|--------------|-----------|
-| **AI_RULES** | Always | Simplicity, scope, explicit decisions, no assumptions |
-| **GIT_RULES** | Commits | Atomic, conventional commits, no mixed concerns |
-| **TESTING_RULES** | New/modified code | Pyramid, fakes > mocks, coverage ≥80%, property-based |
-| **DEPENDENCY_RULES** | Deps changes | Pin versions, SCA, license allowlist, supply chain |
-| **SECURITY_RULES** | Auth/secrets/data | Headers, rate limiting, threat modeling, SAST/SCA |
-| **DOCUMENTATION_RULES** | API/arch changes | Diátaxis, C4 diagrams, changelog, executable examples |
+```bash
+../venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
 
----
+y entrá a `http://<tu-ip-local>:8000`.
 
-## Agent Compatibility
+> Si la PWA ya estaba instalada y no ves los cambios: DevTools → Application → Clear site data.
 
-| Agent | Config File | Status |
-|-------|-------------|--------|
-| **opencode** | `opencode.json` | ✅ Native |
-| **Claude Code** | `CLAUDE.md` | ✅ Native |
-| **Cursor** | `AGENTS.md` | ✅ Reads automatically |
-| **Codex** | `AGENTS.md` | ✅ Reads automatically |
-| **Custom** | `AGENTS.md` | ✅ Universal |
+### Variables de entorno
 
----
+El `.env` en la raíz del repo (gitignored):
 
-## Customization
+| Variable | Descripción |
+|---|---|
+| `API_SPORTS` | Key de api-sports.io (plan B de datos, hoy sin uso activo) |
+| `CEREBRAS_API_KEY` | Clave de [cerebras.ai](https://cloud.cerebras.ai) |
+| `GROQ_API_KEY` | Clave de [console.groq.com](https://console.groq.com) |
+| `SCHEDULER_ENABLED` | `true`/`false` — jobs automáticos (default: true) |
+| `SECRET_KEY` | Secreto JWT — **obligatorio en producción** |
 
-1. **Add skills**: Create `.ai/skills/<name>/SKILL.md` + register in `SKILLS_INDEX.md`
-2. **Modify standards**: Edit files in `.ai/standards/`
-3. **Add templates**: Place in `.ai/templates/` + reference in standards
-4. **Project config**: Fill `PROJECT_SPEC.md` via Project Discovery
+## Qué hace solo el sistema
 
----
+Con el servidor corriendo, APScheduler automatiza el ciclo:
 
-## Philosophy
+| Hora (UTC) | Job |
+|---|---|
+| 06:00 | Sincroniza eventos del día desde ESPN |
+| 06:15 | Genera las predicciones del LLM |
+| cada 1 h | Consulta resultados y puntúa predicciones |
 
-> **Agent behavior depends on the standard, not conversation memory.**
+Todo también se puede gatear a mano:
 
-Every document has a single responsibility. Standards define rules, processes define execution order, specifications define context, checklists define completion, skills define implementation knowledge.
+```bash
+curl -X POST http://localhost:8000/llm/predict        # predicciones IA
+curl -X POST http://localhost:8000/leaderboard/update # puntuar resultados
+```
 
----
+## Estructura del repo
 
-## License
+```
+backend/
+├── app/
+│   ├── main.py           # FastAPI + montaje PWA
+│   ├── core/             # config, seguridad (JWT/bcrypt), rate limiting
+│   ├── auth/             # registro y login
+│   ├── users/            # perfil actual
+│   ├── sports/           # adaptador ESPN (provider pattern)
+│   ├── events/           # sincronización y selección curada diaria (2–10)
+│   ├── predictions/      # alta y consulta de predicciones
+│   ├── scoring/          # puntos, actualización de resultados, tabla
+│   ├── llm/              # jugador IA (Cerebras/Groq + contexto histórico)
+│   ├── stats/            # precisión por usuario/deporte y tokens
+│   ├── scheduler.py      # jobs automáticos
+│   └── db/               # engine y modelos SQLAlchemy
+├── alembic/              # migraciones
+└── tests/
+frontend/                 # PWA (HTML/CSS/JS sin build)
+docs/adr/                 # decisiones de arquitectura
+.ai/                      # estándares de ingeniería con IA (gobernanza)
+```
 
-MIT — Use freely in your projects.
+## Tests
+
+```bash
+cd backend
+../venv/bin/python -m pytest -v
+```
+
+Requieren Docker con Postgres levantado (los tests de integración resetean las tablas).
+
+## Documentación de la API
+
+Con el server corriendo: **http://localhost:8000/docs** (Swagger interactivo).
