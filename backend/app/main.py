@@ -7,6 +7,7 @@ from app.auth.router import router as auth_router
 from app.core.config import get_settings
 from app.core.rate_limit import limiter
 from app.events.router import router as events_router
+from app.llm.router import router as llm_router
 from app.predictions.router import router as predictions_router
 from app.scoring.router import router as scoring_router
 from app.users.router import router as users_router
@@ -22,6 +23,7 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(predictions_router)
 app.include_router(scoring_router)
+app.include_router(llm_router)
 
 
 @app.get("/health")
