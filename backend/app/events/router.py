@@ -1,32 +1,15 @@
 import datetime as dt
-from typing import AsyncIterator
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.engine import create_engine, create_session_factory
 from app.db.models import SportEvent
+from app.deps import get_provider, get_session
 from app.events.service import select_daily_events, sync_day_events
 from app.sports.espn import ESPNProvider
 
 router = APIRouter()
-
-_engine = None
-_session_factory = None
-
-
-async def get_session() -> AsyncIterator[AsyncSession]:
-    global _engine, _session_factory
-    if _session_factory is None:
-        _engine = create_engine()
-        _session_factory = create_session_factory(_engine)
-    async with _session_factory() as session:
-        yield session
-
-
-def get_provider() -> ESPNProvider:
-    return ESPNProvider()
 
 
 @router.get("/events/today")
