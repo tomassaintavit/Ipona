@@ -5,90 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0d1117">
   <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" href="/assets/logo.png" type="image/svg+xml">
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
   <title>ipOna</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <header id="header-app" class="hidden">
-    <div class="brand">
-      <img src="/assets/logo.png" alt="ipOna" class="logo-img">
-      <span class="wordmark">ipOna</span>
-    </div>
-    <nav id="nav">
-      <button data-view="eventos">Eventos</button>
-      <button data-view="tabla">Tabla</button>
-      <button data-view="stats">Stats</button>
-      <button id="logout">Salir</button>
-    </nav>
-  </header>
-
-  <main>
-    <!-- LOGIN -->
-    <section id="view-auth-login" class="view hidden">
-      <div class="auth-hero">
-        <img src="/assets/logo.png" alt="" class="auth-logo">
-        <span class="wordmark grande">ipOna</span>
-        <p class="tagline">Predicí, competí y ganale a la IA</p>
-      </div>
-      <form id="form-login" class="card form-card">
-        <label>Usuario
-          <input name="username" placeholder="tu usuario" required autocomplete="username">
-        </label>
-        <label>Contraseña
-          <input name="password" type="password" placeholder="••••••••" required autocomplete="current-password">
-        </label>
-        <button type="submit">Ingresar</button>
-        <p class="cambio-vista">¿No tenés cuenta? <a href="#" data-go="auth-registro">Creá una</a></p>
-      </form>
-    </section>
-
-    <!-- REGISTRO -->
-    <section id="view-auth-registro" class="view hidden">
-      <div class="auth-hero chico">
-        <img src="/assets/logo.png" alt="" class="auth-logo">
-        <span class="wordmark">ipOna</span>
-        <p class="tagline">Sumate a la competencia</p>
-      </div>
-      <form id="form-register" class="card form-card">
-        <label>Email
-          <input name="email" type="email" placeholder="vos@mail.com" required>
-        </label>
-        <label>Usuario
-          <input name="username" placeholder="mínimo 3 caracteres" required minlength="3" pattern="[a-zA-Z0-9_]+">
-        </label>
-        <label>Contraseña
-          <input name="password" type="password" placeholder="mínimo 8 caracteres" required minlength="8">
-        </label>
-        <button type="submit">Crear cuenta</button>
-        <p class="cambio-vista">¿Ya tenés cuenta? <a href="#" data-go="auth-login">Ingresá</a></p>
-      </form>
-    </section>
-
-    <!-- EVENTOS -->
-    <section id="view-eventos" class="view hidden">
-      <h2>Eventos del día</h2>
-      <div id="eventos-lista"></div>
-    </section>
-
-    <!-- TABLA -->
-    <section id="view-tabla" class="view hidden">
-      <h2>Tabla de posiciones</h2>
-      <table id="tabla-posiciones"></table>
-      <p class="nota">Las predicciones se puntúan al finalizar cada partido.</p>
-    </section>
-
-    <!-- STATS -->
-    <section id="view-stats" class="view hidden">
-      <div class="card"><h2>Mis estadísticas</h2><div id="stats-me"></div></div>
-      <div class="card"><h2>La IA · ipona-ia</h2><div id="stats-llm"></div></div>
-    </section>
-  </main>
-
-  <div id="toast" class="hidden"></div>
-  <script src="/app.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

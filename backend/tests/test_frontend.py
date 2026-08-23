@@ -18,5 +18,5 @@ def test_sirve_manifest_pwa():
         sw = client.get("/sw.js")
 
     assert manifest.status_code == 200
-    assert '"name": "Ipona"' in manifest.text
+    assert '"name": "ipOna"' in manifest.text
     assert sw.status_code == 200

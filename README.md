@@ -12,7 +12,7 @@ Predecí el resultado de partidos de fútbol (Liga Profesional Argentina, Premie
 |---|---|
 | Backend | Python 3.12 + FastAPI (async) |
 | Base de datos | PostgreSQL 16 (Docker en dev; Neon/Supabase en prod) |
-| Frontend | PWA vanilla JS/CSS (sin build), servida por FastAPI |
+| Frontend | PWA con React 19 + Vite, servida por FastAPI |
 | Datos deportivos | API pública de ESPN ([ADR-001](docs/adr/001-usar-api-espn-como-fuente-de-datos.md)) |
 | LLM | Cerebras / Groq vía SDK OpenAI (`openai/gpt-oss-120b`), con failover |
 | Jobs | APScheduler embebido |
@@ -44,7 +44,16 @@ cd backend
 ../venv/bin/alembic upgrade head
 ```
 
-### 4. Arrancar el servidor
+### 4. Construir el frontend (solo la primera vez o al cambiar la UI)
+
+```bash
+# requiere Node 18+
+cd frontend
+npm install
+npm run build   # genera frontend/dist/, que es lo que sirve FastAPI
+```
+
+### 5. Arrancar el servidor
 
 ```bash
 # desde backend/
@@ -111,7 +120,7 @@ backend/
 │   └── db/               # engine y modelos SQLAlchemy
 ├── alembic/              # migraciones
 └── tests/
-frontend/                 # PWA (HTML/CSS/JS sin build)
+frontend/                 # PWA en React + Vite (el build va a frontend/dist/)
 docs/adr/                 # decisiones de arquitectura
 .ai/                      # estándares de ingeniería con IA (gobernanza)
 ```
