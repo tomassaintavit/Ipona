@@ -2,3 +2,7 @@
 
 # Local-only documentation (personal language copy)
 README_spanish.md
+
+venv
+
+.env
