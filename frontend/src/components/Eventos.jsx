@@ -10,7 +10,7 @@ function formatoHora(iso) {
   });
 }
 
-function FormularioPrediccion({ evento, onGuardada }) {
+function FormularioPrediccion({ evento, previa, onGuardada }) {
   const [error, setError] = useState("");
 
   async function enviar(ev) {
@@ -44,37 +44,78 @@ function FormularioPrediccion({ evento, onGuardada }) {
   const pilotos = evento.participants || [];
 
   return (
-    <form onSubmit={enviar}>
-      {esF1
-        ? [0, 1, 2].map((i) => (
-            <select key={i} name={`pos${i}`} required defaultValue="">
-              <option value="" disabled>
-                {i + 1}°
-              </option>
-              {pilotos.map((p) => (
-                <option key={p} value={p}>
-                  {p}
+    <>
+      {previa && (
+        <div className="predicha">
+          Tu predicción:{" "}
+          <strong>
+            {esF1
+              ? (previa.positions || []).join(" · ")
+              : `${previa.home_score} – ${previa.away_score}`}
+          </strong>{" "}
+          (podés cambiarla)
+        </div>
+      )}
+      <form onSubmit={enviar}>
+        {esF1
+          ? [0, 1, 2].map((i) => (
+              <select
+                key={i}
+                name={`pos${i}`}
+                required
+                defaultValue={previa?.positions?.[i] ?? ""}
+              >
+                <option value="" disabled>
+                  {i + 1}°
                 </option>
-              ))}
-            </select>
-          ))
-        : <>
-            <input name="home" type="number" min="0" max="99" required />
-            <span>–</span>
-            <input name="away" type="number" min="0" max="99" required />
-          </>}
-      <button type="submit">Predecir</button>
-      {error && <span className="error inline">{error}</span>}
-    </form>
+                {pilotos.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            ))
+          : <>
+              <input
+                name="home"
+                type="number"
+                min="0"
+                max="99"
+                required
+                defaultValue={previa?.home_score ?? ""}
+              />
+              <span>–</span>
+              <input
+                name="away"
+                type="number"
+                min="0"
+                max="99"
+                required
+                defaultValue={previa?.away_score ?? ""}
+              />
+            </>}
+        <button type="submit">{previa ? "Actualizar" : "Predecir"}</button>
+        {error && <span className="error inline">{error}</span>}
+      </form>
+    </>
   );
 }
 
 export default function Eventos({ onToast }) {
   const [eventos, setCargados] = useState(null);
+  const [previasPorEvento, setPrevias] = useState({});
+  const [recarga, setRecarga] = useState(0);
 
   async function cargar() {
     try {
-      setCargados(await api("/events/today"));
+      const [evs, misPredicciones] = await Promise.all([
+        api("/events/today"),
+        api("/predictions/my"),
+      ]);
+      setCargados(evs);
+      const mapa = {};
+      for (const p of misPredicciones) mapa[p.event_id] = p;
+      setPrevias(mapa);
     } catch (err) {
       onToast(err.message);
     }
@@ -83,7 +124,7 @@ export default function Eventos({ onToast }) {
   useEffect(() => {
     cargar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [recarga]);
 
   if (eventos === null) return <div className="cargando">Cargando eventos…</div>;
   if (eventos.length === 0)
@@ -102,7 +143,14 @@ export default function Eventos({ onToast }) {
             <div className="meta">
               {e.league} · {formatoHora(e.start_time_utc)}
             </div>
-            <FormularioPrediccion evento={e} onGuardada={() => onToast("¡Predicción guardada!")} />
+            <FormularioPrediccion
+              evento={e}
+              previa={previasPorEvento[e.id]}
+              onGuardada={() => {
+                onToast("¡Predicción guardada!");
+                setRecarga((n) => n + 1);
+              }}
+            />
           </div>
         );
       })}
