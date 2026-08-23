@@ -1,0 +1,103 @@
+:root {
+  --verde: #1a7f37;
+  --fondo: #f4f6f4;
+  --card: #ffffff;
+  --texto: #1c1e1c;
+  --gris: #6b7280;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  min-height: 100vh;
+}
+
+header {
+  background: var(--verde);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  position: sticky;
+  top: 0;
+}
+
+header h1 { font-size: 1.3rem; }
+
+nav { display: flex; gap: .4rem; }
+
+nav button {
+  background: rgba(255,255,255,.15);
+  color: white;
+  border: none;
+  padding: .45rem .8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .9rem;
+}
+
+nav button.activo, nav button:hover { background: rgba(255,255,255,.35); }
+
+main { max-width: 720px; margin: 1rem auto; padding: 0 1rem 2rem; }
+
+.view h2 { margin-bottom: .8rem; font-size: 1.1rem; }
+
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+form { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+
+input, select {
+  padding: .6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+button[type=submit], .btn {
+  background: var(--verde);
+  color: white;
+  border: none;
+  padding: .6rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.partido { display: flex; flex-direction: column; gap: .6rem; }
+.partido .equipos { font-weight: 600; }
+.partido .meta { color: var(--gris); font-size: .85rem; }
+.partido form { flex-direction: row; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.partido input { width: 64px; text-align: center; }
+.partido select { flex: 1; min-width: 140px; }
+
+table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+th, td { padding: .6rem .8rem; text-align: left; border-bottom: 1px solid #eee; }
+tr.llm td { background: #eef7ef; }
+
+.stat-linea { display: flex; justify-content: space-between; padding: .3rem 0; border-bottom: 1px dashed #eee; }
+
+.hidden { display: none !important; }
+
+#toast {
+  position: fixed;
+  bottom: 1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  color: white;
+  padding: .6rem 1.2rem;
+  border-radius: 999px;
+  font-size: .9rem;
+}

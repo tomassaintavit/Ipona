@@ -1,0 +1,18 @@
+{
+  "name": "Ipona",
+  "short_name": "Ipona",
+  "description": "Juego de predicciones deportivas con tus amigos y una IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f6f4",
+  "theme_color": "#1a7f37",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
