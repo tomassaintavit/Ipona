@@ -17,16 +17,11 @@ async def today_events(
     session: AsyncSession = Depends(get_session),
     provider: ESPNProvider = Depends(get_provider),
 ) -> list[dict]:
-    today = dt.datetime.now(dt.UTC).date()
-    await sync_day_events(session, provider, today)
+    await sync_day_events(session, provider, dt.datetime.now(dt.UTC).date())
 
+    limite_pasado = dt.datetime.now(dt.UTC) - dt.timedelta(hours=12)
     result = await session.execute(
-        select(SportEvent).where(
-            SportEvent.start_time_utc
-            >= dt.datetime.combine(today, dt.time.min, tzinfo=dt.UTC),
-            SportEvent.start_time_utc
-            <= dt.datetime.combine(today, dt.time.max, tzinfo=dt.UTC),
-        )
+        select(SportEvent).where(SportEvent.start_time_utc >= limite_pasado)
     )
     curated = select_daily_events(list(result.scalars()))
     return [_serialize(e) for e in curated]

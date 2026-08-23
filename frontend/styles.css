@@ -4,8 +4,8 @@
   --borde: #21262d;
   --texto: #e6edf3;
   --texto-suave: #8b949e;
-  --acento: #3fb950;
-  --acento-hover: #46c95a;
+  --acento: #966ec8;
+  --acento-hover: #a582d4;
   --peligro: #f85149;
   --radio: 14px;
 }
@@ -38,10 +38,8 @@ header {
 .brand { display: flex; align-items: center; gap: .55rem; }
 
 .logo-img {
-  width: 34px;
-  height: 34px;
-  object-fit: cover;
-  border-radius: 50%;
+  width: auto;
+  height: 38px;
 }
 
 .wordmark {
@@ -73,7 +71,7 @@ nav button:hover { color: var(--texto); }
 
 nav button.activo {
   color: var(--acento);
-  background: rgba(63, 185, 80, .12);
+  background: rgba(150, 110, 200, .14);
 }
 
 /* ---------- Layout ---------- */
@@ -98,12 +96,16 @@ main { max-width: 680px; margin: 1.2rem auto; padding: 0 1rem 2.5rem; }
 .auth-hero.chico { margin-top: 1rem; }
 
 .auth-logo {
-  width: 84px;
-  height: 84px;
-  border-radius: 24%;
+  height: 130px;
+  width: auto;
   display: block;
   margin: 0 auto .6rem;
-  box-shadow: 0 4px 24px rgba(63, 185, 80, .25);
+  filter: drop-shadow(0 6px 24px rgba(150, 110, 200, .35));
+}
+
+.auth-logo.contenido {
+  object-fit: cover;
+  object-position: center 30%;
 }
 
 .auth-hero .wordmark.grande { display: block; }
@@ -135,12 +137,12 @@ input, select {
 input:focus, select:focus {
   outline: none;
   border-color: var(--acento);
-  box-shadow: 0 0 0 3px rgba(63, 185, 80, .18);
+  box-shadow: 0 0 0 3px rgba(150, 110, 200, .22);
 }
 
 button[type="submit"] {
   background: var(--acento);
-  color: #04260f;
+  color: #ffffff;
   border: none;
   padding: .7rem;
   border-radius: 10px;
@@ -193,7 +195,7 @@ table {
 th, td { padding: .65rem .85rem; text-align: left; border-bottom: 1px solid var(--borde); }
 th { color: var(--texto-suave); font-weight: 500; font-size: .85rem; }
 tr:last-child td { border-bottom: none; }
-tr.llm td { background: rgba(63, 185, 80, .07); }
+tr.llm td { background: rgba(150, 110, 200, .09); }
 
 .nota { color: var(--texto-suave); font-size: .82rem; margin-top: .7rem; }
 

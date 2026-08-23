@@ -159,17 +159,24 @@ $("#form-login").addEventListener("submit", async (ev) => {
 
 $("#form-register").addEventListener("submit", async (ev) => {
   ev.preventDefault();
+  const { email, username, password } = ev.target;
   try {
     await api("/auth/register", {
       method: "POST",
       body: JSON.stringify({
-        email: ev.target.email.value,
-        username: ev.target.username.value,
-        password: ev.target.password.value,
+        email: email.value,
+        username: username.value,
+        password: password.value,
       }),
     });
-    toast("Registrado. Ahora ingresá.");
-    ev.target.reset();
+    const res = await fetch("/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: username.value, password: password.value }),
+    });
+    if (!res.ok) throw new Error("Cuenta creada. Ingresá manualmente.");
+    loginOK((await res.json()).access_token);
+    toast("¡Bienvenido a ipOna!");
   } catch (err) { toast(err.message); }
 });
 
