@@ -217,6 +217,14 @@ def test_chat_con_historial_como_pydantic(client):
     assert response.json()["respuesta"] == "respuesta con historial"
 
 
+def test_system_prompt_incluye_reglas():
+    from app.chat.service import SYSTEM_PROMPT
+
+    assert "reglas del juego" in SYSTEM_PROMPT.lower()
+    assert "3 puntos" in SYSTEM_PROMPT
+    assert "podio" in SYSTEM_PROMPT
+
+
 def test_chat_user_key_distingue_tokens():
     request_a = type("R", (), {"headers": {"authorization": "Bearer aaaa"}, "client": None})()
     request_b = type("R", (), {"headers": {"authorization": "Bearer bbbb"}, "client": None})()
