@@ -37,8 +37,9 @@ function mostrarVista(nombre) {
 function loginOK(t) {
   token = t;
   localStorage.setItem("ipona_token", t);
-  $("#nav").classList.remove("hidden");
-  $("#view-auth").classList.add("hidden");
+  $("#header-app").classList.remove("hidden");
+  $("#view-auth-login").classList.add("hidden");
+  $("#view-auth-registro").classList.add("hidden");
   mostrarVista("eventos");
 }
 
@@ -176,6 +177,17 @@ document.querySelectorAll("nav button[data-view]").forEach(b =>
   b.addEventListener("click", () => mostrarVista(b.dataset.view)));
 $("#logout").addEventListener("click", logout);
 
+document.querySelectorAll("[data-go]").forEach(a =>
+  a.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
+    $("#view-" + a.dataset.go).classList.remove("hidden");
+  }));
+
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
 
-if (token) loginOK(token);
+if (token) {
+  loginOK(token);
+} else {
+  $("#view-auth-login").classList.remove("hidden");
+}

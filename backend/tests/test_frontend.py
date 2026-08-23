@@ -8,7 +8,7 @@ def test_sirve_index_html():
         response = client.get("/")
 
     assert response.status_code == 200
-    assert "Ipona" in response.text
+    assert "ipOna" in response.text
     assert "text/html" in response.headers["content-type"]
 
 
