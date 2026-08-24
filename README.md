@@ -82,7 +82,8 @@ El `.env` en la raíz del repo (gitignored):
 | `CEREBRAS_API_KEY` | Clave de [cerebras.ai](https://cloud.cerebras.ai) |
 | `GROQ_API_KEY` | Clave de [console.groq.com](https://console.groq.com) |
 | `SCHEDULER_ENABLED` | `true`/`false` — jobs automáticos (default: true) |
-| `SECRET_KEY` | Secreto JWT — **obligatorio en producción** |
+| `SECRET_KEY` | Secreto JWT — **obligatorio**, sin default (generá uno con `python -c "import secrets; print(secrets.token_urlsafe(48))"`) |
+| `INVITE_CODE` | Código que pide el registro — si está vacío, el registro queda deshabilitado |
 
 ## Qué hace solo el sistema
 
