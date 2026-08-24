@@ -25,7 +25,7 @@ async def _seed():
             )
             llm = User(
                 email="llm@ipona.ar",
-                username="ipona-ia",
+                username="Cris el pulpo Paul",
                 password_hash="x",
                 is_llm=True,
             )
@@ -118,7 +118,7 @@ def test_llm_stats_incluye_tokens(client):
 
     assert response.status_code == 200
     body = response.json()
-    assert body["username"] == "ipona-ia"
+    assert body["username"] == "Cris el pulpo Paul"
     assert body["predicciones"] == 1
     assert body["tokens"]["llamadas"] == 2
     assert body["tokens"]["total"] == 200

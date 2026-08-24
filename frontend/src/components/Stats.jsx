@@ -56,7 +56,7 @@ export default function Stats({ onToast }) {
   return (
     <>
       <CardStats titulo="Mis estadísticas" data={me} />
-      <CardStats titulo="La IA · ipona-ia" data={llm} />
+      <CardStats titulo="Cris el pulpo Paul · la IA 🐙" data={llm} />
     </>
   );
 }

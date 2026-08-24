@@ -118,7 +118,7 @@ def test_predict_genera_y_persiste_predicciones(client):
         try:
             async with factory() as session:
                 llm = (
-                    await session.execute(select(User).where(User.username == "ipona-ia"))
+                    await session.execute(select(User).where(User.username == "Cris el pulpo Paul"))
                 ).scalar_one()
                 assert llm.is_llm is True
                 preds = (

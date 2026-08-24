@@ -2,7 +2,7 @@
 
 Juego de predicciones deportivas para un grupo privado de amigos (<6 jugadores) con un competidor IA que predice usando datos históricos. Todo corre en servicios gratuitos.
 
-Predecí el resultado de partidos de fútbol (Liga Profesional Argentina, Premier, Champions, Libertadores, Sudamericana, Serie A, LaLiga), NBA y F1. Sumá puntos por marcador exacto o por acertar quién gana/empata/pierde. En F1 se predice el podio. La IA (`ipona-ia`) compite en la tabla como un jugador más.
+Predecí el resultado de partidos de fútbol (Liga Profesional Argentina, Premier, Champions, Libertadores, Sudamericana, Serie A, LaLiga), NBA y F1. Sumá puntos por marcador exacto o por acertar quién gana/empata/pierde. En F1 se predice el podio. La IA **Cris el pulpo Paul** 🐙 compite en la tabla como un jugador más y responde preguntas en el chat de la app.
 
 ---
 

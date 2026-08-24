@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import Prediction, SportEvent, User
 from app.llm.client import LLMClient
 
-LLM_USERNAME = "ipona-ia"
+LLM_USERNAME = "Cris el pulpo Paul"
+LLM_EMAIL = "cris@ipona.ar"
 LLM_PASSWORD_HASH = "no-login"
 
 
@@ -16,7 +17,7 @@ async def ensure_llm_user(session: AsyncSession) -> User:
     user = result.scalar_one_or_none()
     if user is None:
         user = User(
-            email="llm@ipona.ar",
+            email=LLM_EMAIL,
             username=LLM_USERNAME,
             password_hash=LLM_PASSWORD_HASH,
             is_llm=True,
@@ -65,7 +66,8 @@ async def _team_form(session: AsyncSession, team: str) -> list[dict]:
 
 
 SYSTEM_PROMPT = (
-    "Sos un analista deportivo que compite en un juego de predicciones. "
+    "Sos Cris el pulpo Paul, un pulpo adivino que compite como jugador en un juego "
+    "de predicciones deportivas. "
     "Recibis un contexto con eventos proximos y estadisticas recientes de los equipos. "
     "Cuando aparezca 'favorito_casas_de_apuestas', es el equipo que las casas de "
     "apuestas consideran favorito segun dinero apostado: usalo como senal adicional, "

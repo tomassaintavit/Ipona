@@ -26,7 +26,7 @@ async def test_insert_and_query_prediction(db_engine):
         user = User(
             email="test@ipona.ar", username="tomi", password_hash="hash", is_llm=False
         )
-        llm = User(email="llm@ipona.ar", username="ipona-ia", password_hash="x", is_llm=True)
+        llm = User(email="llm@ipona.ar", username="Cris el pulpo Paul", password_hash="x", is_llm=True)
         event = SportEvent(
             provider_event_id="123",
             sport="futbol",
@@ -53,4 +53,4 @@ async def test_insert_and_query_prediction(db_engine):
         assert found.event_id == event.id
 
         llm_users = await session.execute(select(User).where(User.is_llm.is_(True)))
-        assert llm_users.scalar_one().username == "ipona-ia"
+        assert llm_users.scalar_one().username == "Cris el pulpo Paul"

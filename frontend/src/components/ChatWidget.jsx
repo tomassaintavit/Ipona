@@ -4,11 +4,12 @@ import { api } from "../api.js";
 const BIENVENIDA = {
   role: "assistant",
   content:
-    "¡Hola! Soy el asistente de ipOna 🐙 Podés preguntarme cosas del juego, por ejemplo:\n" +
+    "¡Hola! Soy Cris el pulpo Paul 🐙, el pulpo adivino de ipOna. Predigo los partidos y también te puedo responder cosas del juego:\n" +
     "· ¿Cómo salió Racing en sus últimos partidos?\n" +
     "· ¿Cómo va la tabla?\n" +
-    "· ¿Qué predijo ipona-ia últimamente?\n" +
-    "· ¿Qué partidos hay próximos?",
+    "· ¿Qué predije últimamente?\n" +
+    "· ¿Qué partidos hay próximos?\n" +
+    "· ¿Cómo se puntúan las predicciones?",
 };
 
 export default function ChatWidget() {
@@ -51,7 +52,7 @@ export default function ChatWidget() {
       {abierto && (
         <div className="chat-panel">
           <div className="chat-header">
-            <span className="roboto">Asistente</span>
+            <span className="roboto">CP3</span>
             <button className="chat-cerrar" onClick={() => setAbierto(false)}>
               ✕
             </button>

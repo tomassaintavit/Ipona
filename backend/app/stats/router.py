@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.router import get_current_user
 from app.db.models import LLMCall, Prediction, SportEvent, User
 from app.deps import get_session
+from app.llm.player import LLM_USERNAME
 
 router = APIRouter(prefix="/stats", tags=["stats"])
 
@@ -62,7 +63,7 @@ async def my_stats(
 
 @router.get("/llm")
 async def llm_stats(session: AsyncSession = Depends(get_session)) -> dict:
-    user_result = await session.execute(select(User).where(User.username == "ipona-ia"))
+    user_result = await session.execute(select(User).where(User.username == LLM_USERNAME))
     llm_user = user_result.scalar_one_or_none()
     if llm_user is None:
         return {"predicciones": 0, "precision": 0.0, "por_deporte": [], "tokens": {}}

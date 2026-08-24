@@ -267,7 +267,7 @@ tr.llm td { background: rgba(150, 110, 200, .09); }
 }
 
 .chat-fab:hover { transform: scale(1.08); }
-.chat-fab img { width: 72%; height: 72%; object-fit: contain; }
+.chat-fab img { width: 150%; height: 150%; object-fit: contain; }
 
 .chat-panel {
   position: fixed;

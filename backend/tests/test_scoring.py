@@ -124,7 +124,7 @@ async def _seed():
             user = User(email="s@ipona.ar", username="scorer", password_hash="x")
             llm = User(
                 email="llm@ipona.ar",
-                username="ipona-ia",
+                username="Cris el pulpo Paul",
                 password_hash="x",
                 is_llm=True,
             )
@@ -220,5 +220,5 @@ def test_leaderboard_ordena_por_puntos(client):
     assert board[0]["username"] == "scorer"
     assert board[0]["total_points"] == 3.0
     assert board[0]["position"] == 1
-    assert board[1]["username"] == "ipona-ia"
+    assert board[1]["username"] == "Cris el pulpo Paul"
     assert board[1]["total_points"] == 1.0
