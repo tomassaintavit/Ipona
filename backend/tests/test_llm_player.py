@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.core.config import get_settings
 from app.core.rate_limit import limiter
+from app.core.security import create_access_token
 from app.db.models import Base, LLMCall, Prediction, SportEvent, User
 from app.deps import get_session
 from app.llm.player import ensure_llm_user
@@ -48,6 +49,9 @@ async def _seed():
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
         async with factory() as session:
+            user = User(email="l@ipona.ar", username="logueado", password_hash="x")
+            session.add(user)
+            await session.commit()
             future = dt.datetime.now(dt.UTC) + dt.timedelta(hours=3)
             session.add_all(
                 [
@@ -100,8 +104,24 @@ def client():
     fake = FakeLLMClient()
     app.dependency_overrides[get_session] = override_session
     app.dependency_overrides[get_llm_client] = lambda: fake
+
+    async def _get_user_id():
+        engine = create_async_engine(get_settings().database_url)
+        f = async_sessionmaker(engine, expire_on_commit=False)
+        try:
+            async with f() as session:
+                result = await session.execute(
+                    select(User).where(User.username == "logueado")
+                )
+                return result.scalar_one().id
+        finally:
+            await engine.dispose()
+
+    user_id = asyncio.run(_get_user_id())
+    headers = {"Authorization": f"Bearer {create_access_token(user_id)}"}
     with TestClient(app) as c:
         c.fake = fake
+        c.headers.update(headers)
         yield c
     app.dependency_overrides.clear()
 
@@ -132,6 +152,17 @@ def test_predict_genera_y_persiste_predicciones(client):
             await engine.dispose()
 
     asyncio.run(check())
+
+
+def test_predict_sin_token_da_401():
+    fake = FakeLLMClient()
+    app.dependency_overrides[get_llm_client] = lambda: fake
+    try:
+        with TestClient(app) as anonimo:
+            response = anonimo.post("/llm/predict")
+    finally:
+        app.dependency_overrides.pop(get_llm_client, None)
+    assert response.status_code == 401
 
 
 def test_predict_es_idempotente(client):

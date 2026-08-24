@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.core.config import get_settings
 from app.core.rate_limit import limiter
+from app.core.security import create_access_token
 from app.db.models import Base, Prediction, SportEvent, User
 from app.deps import get_provider, get_session
 from app.main import app
@@ -183,11 +184,47 @@ def client():
         finally:
             await engine.dispose()
 
+    async def _get_user_id():
+        engine = create_async_engine(get_settings().database_url)
+        f = async_sessionmaker(engine, expire_on_commit=False)
+        try:
+            async with f() as session:
+                from sqlalchemy import select as sel
+
+                result = await session.execute(
+                    sel(User).where(User.username == "scorer")
+                )
+                return result.scalar_one().id
+        finally:
+            await engine.dispose()
+
+    user_id = asyncio.run(_get_user_id())
+    headers = {"Authorization": f"Bearer {create_access_token(user_id)}"}
     app.dependency_overrides[get_session] = override_session
     app.dependency_overrides[get_provider] = lambda: FakeResultProvider()
     with TestClient(app) as c:
+        c.headers.update(headers)
         yield c
     app.dependency_overrides.clear()
+
+
+def test_update_sin_token_da_401():
+    async def override_session():
+        engine = create_async_engine(get_settings().database_url)
+        f = async_sessionmaker(engine, expire_on_commit=False)
+        try:
+            async with f() as session:
+                yield session
+        finally:
+            await engine.dispose()
+
+    app.dependency_overrides[get_session] = override_session
+    try:
+        with TestClient(app) as anonimo:
+            response = anonimo.post("/leaderboard/update")
+    finally:
+        app.dependency_overrides.clear()
+    assert response.status_code == 401
 
 
 def test_update_results_calcula_puntos(client):
