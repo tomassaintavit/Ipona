@@ -22,6 +22,10 @@ async def register(
     payload: RegisterRequest,
     session: AsyncSession = Depends(get_session),
 ) -> UserOut:
+    if not get_settings().invite_code:
+        raise HTTPException(status_code=503, detail="registro deshabilitado")
+    if payload.codigo_invitacion != get_settings().invite_code:
+        raise HTTPException(status_code=403, detail="codigo de invitacion invalido")
     existing = await session.execute(
         select(User).where(
             (User.email == payload.email) | (User.username == payload.username)

@@ -25,6 +25,7 @@ export default function AuthRegistro({ onLogin }) {
           email: f.email.value,
           username: f.username.value,
           password: f.password.value,
+          codigo_invitacion: f.codigo.value,
         }),
       });
       setToken(await login(f.username.value, f.password.value));
@@ -53,6 +54,10 @@ export default function AuthRegistro({ onLogin }) {
         <label>
           Contraseña
           <input name="password" type="password" placeholder="mínimo 8 caracteres" required minLength={8} />
+        </label>
+        <label>
+          Código de invitación
+          <input name="codigo" placeholder="te lo dio el admin 😏" required />
         </label>
         <button type="submit">Crear cuenta</button>
         {error && <p className="error">{error}</p>}

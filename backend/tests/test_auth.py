@@ -47,10 +47,18 @@ def client():
     app.dependency_overrides.clear()
 
 
-def register(client, email="tomi@ipona.ar", username="tomi", password="secreto123"):
+CODIGO = "test-invite-2026"
+
+
+def register(client, email="tomi@ipona.ar", username="tomi", password="secreto123", codigo=CODIGO):
     return client.post(
         "/auth/register",
-        json={"email": email, "username": username, "password": password},
+        json={
+            "email": email,
+            "username": username,
+            "password": password,
+            "codigo_invitacion": codigo,
+        },
     )
 
 
@@ -84,6 +92,17 @@ def test_register_validates_input(client):
 
     bad_email = register(client, email="no-es-un-email")
     assert bad_email.status_code == 422
+
+
+def test_register_rechaza_codigo_invalido(client):
+    sin_codigo = register(client, codigo=None)
+    assert sin_codigo.status_code == 422
+
+    codigo_mal = register(client, codigo="codigo-falso")
+    assert codigo_mal.status_code == 403
+
+    ok = register(client)
+    assert ok.status_code == 201
 
 
 def test_login_returns_valid_token(client):
