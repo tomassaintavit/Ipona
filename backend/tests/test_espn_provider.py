@@ -202,6 +202,39 @@ async def test_get_event_result_positions_for_f1_race():
     assert result.positions[2] == "George Russell"
 
 
+async def test_evento_nocturno_se_busca_en_fecha_anterior():
+    """Regresion: partido 00:15 UTC aparece en scoreboard del dia anterior en ESPN."""
+    llamadas = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        path = request.url.path
+        fecha = request.url.params.get("dates")
+        llamadas.append((path, fecha))
+        if path.endswith("/arg.1/scoreboard") and fecha == "20260824":
+            return httpx.Response(
+                200, json=_soccer_scoreboard("9", "post", True, 2, 1)
+            )
+        return httpx.Response(200, json={"leagues": [], "events": []})
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url=BASE_URL)
+    provider = ESPNProvider(client=client)
+    from app.sports.models import SportEvent
+
+    event = SportEvent(
+        id="9",
+        sport=Sport.FOOTBALL,
+        league="Liga",
+        start_time_utc=dt.datetime(2026, 8, 25, 0, 15, tzinfo=dt.UTC),
+        status=EventStatus.FINAL,
+    )
+
+    result = await provider.get_event_result(event)
+
+    assert result.completed is True
+    assert result.home_score == 2
+    assert any(f == "20260824" for _, f in llamadas)
+
+
 async def test_get_event_result_raises_when_not_found():
     routes = {
         "/soccer/arg.1/scoreboard": _soccer_scoreboard("999", "post", True, 1, 0),

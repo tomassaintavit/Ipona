@@ -45,13 +45,15 @@ class ESPNProvider(SportsDataProvider):
 
     async def get_event_result(self, event: SportEvent) -> EventResult:
         date = event.start_time_utc.date()
-        for path in SPORT_PATHS[event.sport]:
-            data = await self._fetch_scoreboard(path, date)
-            if data is None:
-                continue
-            for raw in data.get("events", []):
-                if raw.get("id") == event.id:
-                    return _parse_result(raw, event)
+        fechas = [date, date - dt.timedelta(days=1), date + dt.timedelta(days=1)]
+        for fecha in fechas:
+            for path in SPORT_PATHS[event.sport]:
+                data = await self._fetch_scoreboard(path, fecha)
+                if data is None:
+                    continue
+                for raw in data.get("events", []):
+                    if raw.get("id") == event.id:
+                        return _parse_result(raw, event)
         raise LookupError(f"evento {event.id} no encontrado en ESPN")
 
     async def _fetch_scoreboard(self, path: str, date: dt.date) -> dict | None:
