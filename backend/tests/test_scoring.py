@@ -114,6 +114,45 @@ class FakeResultProvider:
         raise LookupError("no encontrado")
 
 
+async def test_puntua_evento_con_estado_stale_programado():
+    """Regresion: evento pasado que quedo 'programado' en la DB debe puntuarse."""
+    engine = create_async_engine(get_settings().database_url)
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
+        async with factory() as session:
+            user = User(email="st@ipona.ar", username="staleness", password_hash="x")
+            pasado = dt.datetime.now(dt.UTC) - dt.timedelta(days=1)
+            event = SportEvent(
+                provider="espn",
+                provider_event_id="fut1",
+                sport="futbol",
+                league="Liga",
+                start_time_utc=pasado,
+                status="programado",
+                home_team="A",
+                away_team="B",
+            )
+            session.add_all([user, event])
+            await session.flush()
+            prediction = Prediction(
+                user_id=user.id, event_id=event.id, home_score=2, away_score=1
+            )
+            session.add(prediction)
+            await session.commit()
+
+            updated = await update_results(session, FakeResultProvider())
+            assert updated == 1
+            await session.refresh(prediction)
+            assert float(prediction.points) == 3.0
+            await session.refresh(event)
+            assert event.status == "finalizado"
+    finally:
+        await engine.dispose()
+
+
 async def _seed():
     engine = create_async_engine(get_settings().database_url)
     factory = async_sessionmaker(engine, expire_on_commit=False)

@@ -1,4 +1,4 @@
-const CACHE = "ipona-v1";
+const CACHE = "ipona-v2";
 const ASSETS = ["/", "/styles.css", "/app.js", "/icon.svg", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {

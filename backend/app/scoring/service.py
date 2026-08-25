@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Prediction, SportEvent, User
 from app.scoring.points import compute_points
-from app.sports.models import EventResult, SportEvent as DomainEvent
+from app.sports.models import EventResult, EventStatus, SportEvent as DomainEvent
 from app.sports.provider import SportsDataProvider
 
 
@@ -19,7 +19,6 @@ async def update_results(
         .where(
             Prediction.points.is_(None),
             SportEvent.start_time_utc < dt.datetime.now(dt.UTC),
-            SportEvent.status != "programado",
         )
     )
     updated = 0
@@ -47,6 +46,8 @@ def _apply_result(event: SportEvent, provider_result: EventResult) -> None:
     event.final_home_score = provider_result.home_score
     event.final_away_score = provider_result.away_score
     event.final_positions = provider_result.positions
+    if provider_result.completed:
+        event.status = EventStatus.FINAL.value
 
 
 def _to_domain(event: SportEvent) -> DomainEvent:
