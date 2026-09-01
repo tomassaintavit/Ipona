@@ -12,6 +12,33 @@ const BIENVENIDA = {
     "· ¿Cómo se puntúan las predicciones?",
 };
 
+function AvatarChat({ role }) {
+  if (role === "assistant") {
+    return (
+      <div className="avatar-chat ia">
+        <img src="/assets/logo.png" alt="Cris" />
+      </div>
+    );
+  }
+  return <div className="avatar-chat">yo</div>;
+}
+
+function Cierre() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+      <path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7a1 1 0 0 0-1.41 1.41L10.59 12l-4.89 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" />
+    </svg>
+  );
+}
+
+function EnviarIcono() {
+  return (
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
+      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+    </svg>
+  );
+}
+
 export default function ChatWidget() {
   const [abierto, setAbierto] = useState(false);
   const [mensajes, setMensajes] = useState([BIENVENIDA]);
@@ -52,21 +79,49 @@ export default function ChatWidget() {
       {abierto && (
         <div className="chat-panel">
           <div className="chat-header">
-            <span className="roboto">CP3</span>
-            <button className="chat-cerrar" onClick={() => setAbierto(false)}>
-              ✕
+            <div className="chat-titulo">
+              <div className="avatar-chat ia chico">
+                <img src="/assets/logo.png" alt="Cris" />
+              </div>
+              <div>
+                <span className="chat-nombre">Cris el pulpo Paul</span>
+                <span className="chat-estado">
+                  <i /> en línea
+                </span>
+              </div>
+            </div>
+            <button className="chat-cerrar" onClick={() => setAbierto(false)} aria-label="Cerrar chat">
+              <Cierre />
             </button>
           </div>
+
           <div className="chat-mensajes">
+            <p className="chat-note">
+              Preguntame por partidos, tu tabla o cómo se puntúa.
+            </p>
             {mensajes.map((m, i) => (
-              <div key={i} className={`burbuja ${m.role}`}>
-                {m.content}
+              <div className="chat-fila" key={i}>
+                <AvatarChat role={m.role} />
+                <div className={`burbuja ${m.role}`}>{m.content}</div>
               </div>
             ))}
             {enviando && (
-              <div className="burbuja assistant escribiendo">escribiendo…</div>
+              <div className="chat-fila">
+                <div className="avatar-chat ia">
+                  <img src="/assets/logo.png" alt="Cris" />
+                </div>
+                <div className="burbuja assistant escribiendo">
+                  <span className="puntos">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  <span className="sr-only">escribiendo…</span>
+                </div>
+              </div>
             )}
           </div>
+
           <form className="chat-input" onSubmit={enviar}>
             <input
               ref={inputRef}
@@ -74,8 +129,8 @@ export default function ChatWidget() {
               maxLength={1000}
               autoComplete="off"
             />
-            <button type="submit" disabled={enviando}>
-              Enviar
+            <button type="submit" disabled={enviando} aria-label="Enviar">
+              <EnviarIcono />
             </button>
           </form>
         </div>
