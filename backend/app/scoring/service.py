@@ -66,28 +66,45 @@ def _to_domain(event: SportEvent) -> DomainEvent:
 
 
 async def get_leaderboard(session: AsyncSession) -> list[dict]:
-    result = await session.execute(
-        select(
-            User.id,
-            User.username,
-            User.is_llm,
-            func.coalesce(func.sum(Prediction.points), 0.0).label("total"),
-            func.count(Prediction.id).label("predictions"),
+    rows = (
+        await session.execute(
+            select(
+                User.id,
+                User.username,
+                User.is_llm,
+                SportEvent.sport,
+                func.coalesce(func.sum(Prediction.points), 0.0),
+                func.count(Prediction.id),
+            )
+            .outerjoin(Prediction, Prediction.user_id == User.id)
+            .outerjoin(SportEvent, Prediction.event_id == SportEvent.id)
+            .group_by(User.id, User.username, User.is_llm, SportEvent.sport)
+            .order_by(User.id)
         )
-        .outerjoin(Prediction, Prediction.user_id == User.id)
-        .group_by(User.id, User.username, User.is_llm)
-        .order_by(func.sum(Prediction.points).desc())
-    )
-    rows = result.all()
+    ).all()
+
+    por_usuario: dict[int, dict] = {}
+    totales: dict[int, float] = {}
+    conteos: dict[int, int] = {}
+    for user_id, username, is_llm, sport, puntos, conteo in rows:
+        d = por_usuario.setdefault(user_id, {"username": username, "is_llm": is_llm, "sports": {}})
+        if sport:
+            d["sports"][sport] = float(puntos)
+            totales[user_id] = totales.get(user_id, 0.0) + float(puntos)
+            conteos[user_id] = conteos.get(user_id, 0) + conteo
+
     ranked = []
-    for position, (user_id, username, is_llm, total, count) in enumerate(rows, start=1):
+    for pos, (user_id, d) in enumerate(
+        sorted(por_usuario.items(), key=lambda kv: -totales.get(kv[0], 0.0)), start=1
+    ):
         ranked.append(
             {
-                "position": position,
-                "username": username,
-                "is_llm": is_llm,
-                "total_points": float(total),
-                "predictions": count,
+                "position": pos,
+                "username": d["username"],
+                "is_llm": d["is_llm"],
+                "total_points": totales.get(user_id, 0.0),
+                "predictions": conteos.get(user_id, 0),
+                "puntos_por_deporte": d["sports"],
             }
         )
     return ranked
