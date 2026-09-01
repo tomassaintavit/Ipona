@@ -11,6 +11,11 @@ const ICONOS = {
       <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm3 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm9-8h-9v2h9v-2z" />
     </svg>
   ),
+  historico: (
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
+      <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm1-13h-2v6l5.25 3.15 1-1.65-4.25-2.5V7z" />
+    </svg>
+  ),
   stats: (
     <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
       <path d="M3 3h2v18H3V3zm4 6h2v12H7V9zm4 3h2v9h-2v-9zm4 3h2v6h-2v-6zm4-6h2v12h-2V9z" />
@@ -28,6 +33,7 @@ export default function Header({ vista, onVista, onLogout }) {
   const botones = [
     { id: "eventos", label: "Eventos", icono: ICONOS.eventos },
     { id: "tabla", label: "Tabla", icono: ICONOS.tabla },
+    { id: "historico", label: "Histórico", icono: ICONOS.historico },
     { id: "stats", label: "Estadísticas", icono: ICONOS.stats },
   ];
 

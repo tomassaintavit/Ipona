@@ -6,6 +6,7 @@ import AuthRegistro from "./components/AuthRegistro.jsx";
 import Eventos from "./components/Eventos.jsx";
 import ChatWidget from "./components/ChatWidget.jsx";
 import Tabla from "./components/Tabla.jsx";
+import Historico from "./components/Historico.jsx";
 import Stats from "./components/Stats.jsx";
 
 export default function App() {
@@ -55,6 +56,7 @@ export default function App() {
       <main>
         {vista === "eventos" && <Eventos onToast={showToast} />}
         {vista === "tabla" && <Tabla onToast={showToast} />}
+        {vista === "historico" && <Historico onToast={showToast} />}
         {vista === "stats" && <Stats onToast={showToast} />}
       </main>
       <ChatWidget />

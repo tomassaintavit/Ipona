@@ -770,6 +770,114 @@ input::placeholder { color: #484f58; }
   .fila-gap { display: none; }
 }
 
+/* ---------- Histórico ---------- */
+.historico .chip-liga { color: var(--texto) !important; }
+
+.hist-lista { display: flex; flex-direction: column; }
+
+.hist-card {
+  border-radius: 18px;
+  padding: 1rem 1.1rem;
+  margin-bottom: .7rem;
+  animation: aparecer .35s ease backwards;
+}
+
+.hist-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-bottom: .8rem;
+}
+
+.hist-card .chip-liga {
+  letter-spacing: .6px;
+  font-size: .7rem;
+}
+
+.hist-marcadores {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: .8rem;
+}
+
+.hist-col {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  align-items: center;
+}
+
+.hist-label {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--texto-suave);
+}
+
+.hist-valor {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: .5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--texto);
+}
+
+.hist-vs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+}
+
+.hist-equipo {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+  text-align: center;
+}
+
+.hist-puntos {
+  margin-top: .85rem;
+  padding-top: .7rem;
+  border-top: 1px dashed var(--borde);
+  text-align: center;
+}
+
+.punto-resultado {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .86rem;
+  font-weight: 700;
+  padding: .3rem .85rem;
+  border-radius: 999px;
+}
+
+.punto-resultado.ok {
+  color: #56d364;
+  background: rgba(86, 211, 100, .1);
+  border: 1px solid rgba(86, 211, 100, .3);
+}
+
+.punto-resultado.mal {
+  color: #f85149;
+  background: rgba(248, 81, 73, .08);
+  border: 1px solid rgba(248, 81, 73, .25);
+}
+
+.punto-resultado.neutro {
+  color: var(--texto-suave);
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid var(--borde);
+}
+
+@media (max-width: 640px) {
+  .hist-marcadores { grid-template-columns: 1fr; gap: .5rem; }
+  .hist-vs { order: -1; margin-bottom: .2rem; }
+}
+
 /* ---------- Stats ---------- */
 .stat-card {
   position: relative;
