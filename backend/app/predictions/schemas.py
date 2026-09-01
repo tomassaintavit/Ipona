@@ -1,3 +1,5 @@
+import datetime as dt
+
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -24,3 +26,19 @@ class PredictionOut(BaseModel):
     home_score: int | None
     away_score: int | None
     positions: list[str] | None
+
+
+class PredictionHistory(BaseModel):
+    id: int
+    event_id: int
+    league: str
+    sport: str
+    start_time_utc: dt.datetime
+    teams: list[str]
+    predicted_home: int | None
+    predicted_away: int | None
+    predicted_positions: list[str] | None
+    final_home: int | None
+    final_away: int | None
+    final_positions: list[str] | None
+    points: float | None

@@ -56,6 +56,18 @@ async def _seed():
                     home_team="C",
                     away_team="D",
                 ),
+                SportEvent(
+                    provider="espn",
+                    provider_event_id="fut3",
+                    sport="futbol",
+                    league="Liga",
+                    start_time_utc=dt.datetime.now(dt.UTC) - dt.timedelta(days=2),
+                    status="finalizado",
+                    home_team="E",
+                    away_team="F",
+                    final_home_score=3,
+                    final_away_score=1,
+                ),
             ]
             session.add_all([user, *events])
             await session.commit()
@@ -100,8 +112,8 @@ def client():
 
 
 def event_id_by_provider(client, provider_event_id):
-    # los ids se asignan secuencialmente: fut1=1, f1-1=2, fut2=3
-    return {"fut1": 1, "f1-1": 2, "fut2": 3}[provider_event_id]
+    # los ids se asignan secuencialmente: fut1=1, f1-1=2, fut2=3, fut3=4
+    return {"fut1": 1, "f1-1": 2, "fut2": 3, "fut3": 4}[provider_event_id]
 
 
 def test_guarda_prediccion_de_futbol(client):
@@ -183,3 +195,45 @@ def test_my_predictions_sin_token_da_401():
     finally:
         app.dependency_overrides.clear()
     assert response.status_code == 401
+
+
+def _seed_finalizada_prediction():
+    from app.db.models import Prediction
+
+    async def add():
+        engine = create_async_engine(get_settings().database_url)
+        factory = async_sessionmaker(engine, expire_on_commit=False)
+        try:
+            async with factory() as session:
+                user = (await session.execute(select(User).where(User.username == "predador"))).scalar_one()
+                session.add(
+                    Prediction(
+                        user_id=user.id,
+                        event_id=4,
+                        home_score=2,
+                        away_score=0,
+                        points=3.0,
+                    )
+                )
+                await session.commit()
+        finally:
+            await engine.dispose()
+
+    asyncio.run(add())
+
+
+def test_history_solo_lista_predicciones_finalizadas(client):
+    _seed_finalizada_prediction()
+    response = client.get("/predictions/history")
+    assert response.status_code == 200
+
+    items = response.json()
+    assert len(items) == 1
+    item = items[0]
+    assert item["teams"] == ["E", "F"]
+    assert item["predicted_home"] == 2
+    assert item["predicted_away"] == 0
+    assert item["final_home"] == 3
+    assert item["final_away"] == 1
+    assert item["points"] == 3.0
+    assert item["sport"] == "futbol"
