@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../api.js";
 
 function formatoHora(iso) {
@@ -12,35 +12,49 @@ function formatoHora(iso) {
 
 function FormularioPrediccion({ evento, previa, onGuardada }) {
   const [error, setError] = useState("");
+  const esF1 = evento.sport === "formula_1";
+  const [home, setHome] = useState(previa?.home_score ?? "");
+  const [away, setAway] = useState(previa?.away_score ?? "");
+  const [pos, setPos] = useState(previa?.positions ?? ["", "", ""]);
+  const dirty = useRef(!previa);
 
-  async function enviar(ev) {
-    ev.preventDefault();
-    const f = ev.target;
-    setError("");
-    let body;
-    if (evento.sport === "formula_1") {
-      const positions = [f.pos0.value, f.pos1.value, f.pos2.value];
+  function body() {
+    if (esF1) {
+      const positions = [pos[0], pos[1], pos[2]];
+      if (positions.some((p) => !p)) return null;
       if (new Set(positions).size !== 3) {
         setError("Elegí 3 pilotos distintos");
-        return;
+        return null;
       }
-      body = { event_id: evento.id, positions };
-    } else {
-      body = {
-        event_id: evento.id,
-        home_score: Number(f.home.value),
-        away_score: Number(f.away.value),
-      };
+      return { event_id: evento.id, positions };
     }
-    try {
-      await api("/predictions", { method: "POST", body: JSON.stringify(body) });
-      onGuardada();
-    } catch (err) {
-      setError(err.message);
-    }
+    if (home === "" || away === "") return null;
+    return { event_id: evento.id, home_score: Number(home), away_score: Number(away) };
   }
 
-  const esF1 = evento.sport === "formula_1";
+  function guardar() {
+    const payload = body();
+    if (!payload) return;
+    setError("");
+    api("/predictions", { method: "POST", body: JSON.stringify(payload) })
+      .then(onGuardada)
+      .catch((err) => setError(err.message));
+  }
+
+  useEffect(() => {
+    if (!dirty.current) return;
+    const t = setTimeout(guardar, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [home, away, pos]);
+
+  function marcarEnsuciado(fn) {
+    return (e) => {
+      dirty.current = true;
+      fn(e);
+    };
+  }
+
   const pilotos = evento.participants || [];
 
   return (
@@ -56,14 +70,15 @@ function FormularioPrediccion({ evento, previa, onGuardada }) {
           (podés cambiarla)
         </div>
       )}
-      <form onSubmit={enviar}>
+      <div className="prediccion">
         {esF1
           ? [0, 1, 2].map((i) => (
               <select
                 key={i}
-                name={`pos${i}`}
-                required
-                defaultValue={previa?.positions?.[i] ?? ""}
+                value={pos[i]}
+                onChange={marcarEnsuciado((e) =>
+                  setPos((p) => p.map((v, j) => (j === i ? e.target.value : v)))
+                )}
               >
                 <option value="" disabled>
                   {i + 1}°
@@ -77,26 +92,25 @@ function FormularioPrediccion({ evento, previa, onGuardada }) {
             ))
           : <>
               <input
-                name="home"
                 type="number"
                 min="0"
                 max="99"
-                required
-                defaultValue={previa?.home_score ?? ""}
+                value={home}
+                placeholder="Local"
+                onChange={marcarEnsuciado((e) => setHome(e.target.value))}
               />
               <span>–</span>
               <input
-                name="away"
                 type="number"
                 min="0"
                 max="99"
-                required
-                defaultValue={previa?.away_score ?? ""}
+                value={away}
+                placeholder="Visitante"
+                onChange={marcarEnsuciado((e) => setAway(e.target.value))}
               />
             </>}
-        <button type="submit">{previa ? "Actualizar" : "Predecir"}</button>
         {error && <span className="error inline">{error}</span>}
-      </form>
+      </div>
     </>
   );
 }
