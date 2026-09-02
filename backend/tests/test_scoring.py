@@ -4,9 +4,8 @@ import datetime as dt
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.core.config import get_settings
 from app.core.rate_limit import limiter
 from app.core.security import create_access_token
 from app.db.models import Base, Prediction, SportEvent, User
@@ -14,6 +13,8 @@ from app.deps import get_provider, get_session
 from app.main import app
 from app.scoring.points import compute_points
 from app.scoring.service import update_results
+
+from tests.conftest import make_test_engine
 
 
 def make_event(**kwargs):
@@ -116,7 +117,7 @@ class FakeResultProvider:
 
 async def test_puntua_evento_con_estado_stale_programado():
     """Regresion: evento pasado que quedo 'programado' en la DB debe puntuarse."""
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
     try:
         async with engine.begin() as conn:
@@ -154,7 +155,7 @@ async def test_puntua_evento_con_estado_stale_programado():
 
 
 async def _seed():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
     try:
         async with engine.begin() as conn:
@@ -215,7 +216,7 @@ def client():
     asyncio.run(_seed())
 
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:
@@ -224,7 +225,7 @@ def client():
             await engine.dispose()
 
     async def _get_user_id():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         f = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with f() as session:
@@ -249,7 +250,7 @@ def client():
 
 def test_update_sin_token_da_401():
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         f = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with f() as session:
@@ -272,7 +273,7 @@ def test_update_results_calcula_puntos(client):
     assert response.status_code == 200
 
     async def check():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:

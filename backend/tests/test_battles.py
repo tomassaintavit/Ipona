@@ -4,7 +4,7 @@ import datetime as dt
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.battles.service import (
     create_daily_battles,
@@ -12,16 +12,17 @@ from app.battles.service import (
     resolve_battles,
     set_battle_message,
 )
-from app.core.config import get_settings
 from app.core.rate_limit import limiter
 from app.core.security import create_access_token
 from app.db.models import Base, Battle, Prediction, SportEvent, User
 from app.deps import get_provider, get_session
 from app.main import app
 
+from tests.conftest import make_test_engine
+
 
 async def _seed():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
     try:
         async with engine.begin() as conn:
@@ -47,7 +48,7 @@ async def _seed():
 
 
 def _make_factory():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     return engine, async_sessionmaker(engine, expire_on_commit=False)
 
 
@@ -278,7 +279,7 @@ def test_endpoints_battles_requieren_auth():
 
 
 def test_leaderboard_periodo_invalido():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
 
     async def override_session():
@@ -316,7 +317,7 @@ def test_leaderboard_periodo_invalido():
 
 def test_flujo_endpoint_battles_today_mensaje():
     def _factory():
-        e = create_async_engine(get_settings().database_url)
+        e = make_test_engine()
         return e, async_sessionmaker(e, expire_on_commit=False)
 
     async def seed():

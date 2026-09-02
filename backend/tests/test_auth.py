@@ -2,19 +2,20 @@ import asyncio
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.auth.router import router as auth_router
-from app.core.config import get_settings
 from app.core.rate_limit import limiter
 from app.db.models import Base
 from app.deps import get_session
 from app.main import app
 from app.users.router import router as users_router
 
+from tests.conftest import make_test_engine
+
 
 async def _reset_schema():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -33,7 +34,7 @@ def client():
     asyncio.run(_reset_schema())
 
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:

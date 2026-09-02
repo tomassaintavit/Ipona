@@ -4,9 +4,8 @@ import datetime as dt
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.core.config import get_settings
 from app.core.rate_limit import limiter
 from app.core.security import create_access_token
 from app.db.models import Base, LLMCall, Prediction, SportEvent, User
@@ -14,6 +13,8 @@ from app.deps import get_session
 from app.llm.player import ensure_llm_user
 from app.llm.router import get_llm_client
 from app.main import app
+
+from tests.conftest import make_test_engine
 
 
 class FakeLLMClient:
@@ -42,7 +43,7 @@ class FakeLLMClient:
 
 
 async def _seed():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
     try:
         async with engine.begin() as conn:
@@ -93,7 +94,7 @@ def client():
     asyncio.run(_seed())
 
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:
@@ -106,7 +107,7 @@ def client():
     app.dependency_overrides[get_llm_client] = lambda: fake
 
     async def _get_user_id():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         f = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with f() as session:
@@ -133,7 +134,7 @@ def test_predict_genera_y_persiste_predicciones(client):
     assert response.json()["predicciones_generadas"] == 2
 
     async def check():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:

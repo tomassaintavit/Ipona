@@ -2,15 +2,14 @@ import datetime as dt
 
 import pytest
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import create_async_engine
 
-from app.core.config import get_settings
 from app.db.models import Base, Prediction, SportEvent, User
+from tests.conftest import make_test_engine
 
 
 @pytest.fixture
 async def db_engine():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)

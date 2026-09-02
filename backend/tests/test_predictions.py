@@ -4,17 +4,18 @@ import datetime as dt
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.core.config import get_settings
 from app.core.rate_limit import limiter
 from app.db.models import Base, SportEvent, User
 from app.deps import get_session
 from app.main import app
 
+from tests.conftest import make_test_engine
+
 
 async def _seed():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
     try:
         async with engine.begin() as conn:
@@ -92,7 +93,7 @@ def client():
     user_id = seed()
 
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:
@@ -180,7 +181,7 @@ def test_evento_inexistente_da_404(client):
 
 def test_my_predictions_sin_token_da_401():
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:
@@ -201,7 +202,7 @@ def _seed_finalizada_prediction():
     from app.db.models import Prediction
 
     async def add():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:

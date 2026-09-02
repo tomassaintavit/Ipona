@@ -3,15 +3,16 @@ import datetime as dt
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.chat.router import chat_user_key
-from app.core.config import get_settings
 from app.core.rate_limit import limiter
 from app.db.models import Base, Prediction, SportEvent, User
 from app.deps import get_session
 from app.llm.router import get_llm_client
 from app.main import app
+
+from tests.conftest import make_test_engine
 
 
 class FakeLLMConTools:
@@ -41,7 +42,7 @@ class FakeLLMConTools:
 async def _seed():
     from sqlalchemy import select
 
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
     try:
         async with engine.begin() as conn:
@@ -98,7 +99,7 @@ def client():
     user_id = asyncio.run(_seed())
 
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:
@@ -237,7 +238,7 @@ def test_tools_ultimos_particos_busca_insensible():
 
 
 async def _verificar_busqueda():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
     try:
         async with factory() as session:

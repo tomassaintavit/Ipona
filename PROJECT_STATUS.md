@@ -68,6 +68,7 @@ Este documento registra el estado vivo del proyecto. Se actualiza al completar t
 | TD-004 | Low | Recuperación de contraseña manual vía SQL; evaluar flujo email (Resend/Brevo) si hace falta | Backlog |
 | TD-005 | Low | Desempates en tabla por orden de inserción; definir criterio (ej. menos predicciones) | Cuando importe |
 | TD-006 | Low | Service worker requiere bump manual de caché en cada cambio de front | Considerar automatizar |
+| TD-007 | High | Falta backup real de la DB de producción (causó pérdida irreparable de historial el 2026-09-02) | Implementar rutina pg_dump |
 
 ---
 
@@ -94,7 +95,7 @@ Otras decisiones relevantes (sin ADR formal):
 | R-001 | API ESPN no oficial (sin SLA, puede cambiar) | Medium | Capa adaptadora + api-sports.io documentado como plan B (ADR-001) | Tomás |
 | R-002 | Sleep de Render free tier pausa el scheduler | Medium | cron-job.org pings /health cada 10 min ✅ activo | Tomás |
 | R-003 | Cuotas LLM (Groq/Cerebras) pueden agotarse | Low | Failover entre proveedores; monitorear llm_calls y consolas | Tomás |
-| R-004 | Postgres gratuito sin backups automáticos | Medium | Backup manual periódico (pendiente rutina) | Tomás |
+| R-004 | Postgres gratuito sin backups automáticos | **High** (causó pérdida de datos) | Backup manual periódico (pendiente rutina) | Tomás |
 
 ---
 
@@ -113,5 +114,6 @@ Otras decisiones relevantes (sin ADR formal):
 - Actualizar este archivo tras cada tarea significativa (DONE-040)
 - Lecciones aprendidas del primer deploy: caracteres especiales en DATABASE_URL (% → escapar en Alembic), IPv4-only en Render → usar Session Pooler de Supabase, httpx era dependencia de runtime oculta por requirements-dev, ESPN lista partidos nocturnos UTC bajo fecha local de la liga
 - Fix timezone: `get_day_events` ahora consulta rango ±1 día (no solo la fecha UTC), corrigiendo la regresión donde partidos nocturnos quedaban fuera de la sincronización
+- **INCIDENTE 2026-09-02**: se borró todo el historial de producción (users, sport_events, predictions, llm_calls) al ejecutar `Base.metadata.drop_all/create_all` de los tests contra Supabase por un fallo de apuntado de `DATABASE_URL` (scripts ad-hoc fuera de pytest caían al `.env`). Sin backups en free tier → pérdida irreparable. Mitigación aplicada: guarda en `tests/conftest.py` (`_assert_local_test_database` + `make_test_engine`) que impide que cualquier test operé sobre una base no-local. Base reconstruida desde cero: solo queda la IA "Cris el pulpo Paul"; los usuarios reales se re-registran. Pendiente: backup real (`pg_dump`) + no correr nunca `drop_all` en scripts ad-hoc.
 - ESPN soporta `dates=YYYYMMDD-YYYYMMDD` nativamente, reduciendo N requests por liga a 1 request por liga
 - Batallas: el emparejamiento se hace dentro del job de sync (06:00 UTC, idempotente por fecha); la resolución corre en el job de resultados. Modelo `battles` con `extra_user_id` para tríos. Ver `docs/reglas-del-juego.md`

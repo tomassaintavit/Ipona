@@ -4,13 +4,14 @@ import datetime as dt
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.core.config import get_settings
 from app.db.models import Base, SportEvent
 from app.events.router import get_provider, get_session
 from app.main import app
 from app.sports.models import SportEvent as DomainEvent
+
+from tests.conftest import make_test_engine
 
 
 def make_domain_event(id, league, sport="futbol", home="A", away="B"):
@@ -37,7 +38,7 @@ class FakeProvider:
 
 
 async def _reset_schema():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -45,7 +46,7 @@ async def _reset_schema():
 
 
 async def _count_events() -> int:
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
     try:
         async with factory() as session:
@@ -60,7 +61,7 @@ def client():
     asyncio.run(_reset_schema())
 
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:

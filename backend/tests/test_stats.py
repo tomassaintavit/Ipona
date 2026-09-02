@@ -3,17 +3,18 @@ import datetime as dt
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.core.config import get_settings
 from app.core.security import create_access_token
 from app.db.models import Base, LLMCall, Prediction, SportEvent, User
 from app.deps import get_session
 from app.main import app
 
+from tests.conftest import make_test_engine
+
 
 async def _seed():
-    engine = create_async_engine(get_settings().database_url)
+    engine = make_test_engine()
     factory = async_sessionmaker(engine, expire_on_commit=False)
     try:
         async with engine.begin() as conn:
@@ -79,7 +80,7 @@ def client():
     user_id = asyncio.run(_seed())
 
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:
@@ -126,7 +127,7 @@ def test_llm_stats_incluye_tokens(client):
 
 def test_stats_requieren_token():
     async def override_session():
-        engine = create_async_engine(get_settings().database_url)
+        engine = make_test_engine()
         factory = async_sessionmaker(engine, expire_on_commit=False)
         try:
             async with factory() as session:
