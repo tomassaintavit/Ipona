@@ -40,7 +40,28 @@ Fórmula 1:
 
 Suma de puntos de todas las predicciones puntuadas de cada jugador, incluyendo
 la IA. Se actualiza automáticamente al finalizar los partidos (hasta 1 hora
-después puede demorar).
+después puede demorar). La tabla se puede ver por períodos: **global** (todo el
+historial), **semanal** (desde el lunes) y **mensual** (desde el primer día del
+mes).
+
+## Batallas diarias
+
+Cada día, junto con la sincronización de eventos (6:00 UTC), el sistema
+empareja a los jugadores en **duelos de cabeza a cabeza** de 2 personas
+(aleatorio). Si el número de jugadores es impar, el último grupo se juega en
+**tríos** (todos contra todos, se define un único ganador).
+
+- La IA **Cris participa** en los emparejamientos como un jugador más.
+- Ganar se define por los **puntos del día**: quien sume más puntos entre las
+  predicciones puntuadas de ese día.
+- En caso de empate, nadie gana la batalla.
+- Solo el ganador de la batalla puede (y debe) escribir un **mensaje** al
+  perdedor (o a los perdedores, en trío). Un solo mensaje, hasta 100 caracteres.
+- La IA no escribe mensajes: si gana una batalla, no hay mensaje.
+- Las batallas se resuelven automáticamente cuando están puntuadas todas las
+  predicciones del día.
+- Un jugador que se registra después de creadas las batallas del día recién
+  aparece en las batallas del día siguiente.
 
 ## Estadísticas
 

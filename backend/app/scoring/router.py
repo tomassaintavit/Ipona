@@ -11,9 +11,13 @@ router = APIRouter(prefix="/leaderboard", tags=["leaderboard"])
 
 @router.get("")
 async def leaderboard(
+    period: str = "global",
     session: AsyncSession = Depends(get_session),
 ) -> list[dict]:
-    return await get_leaderboard(session)
+    if period not in ("global", "weekly", "monthly"):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="periodo invalido")
+    return await get_leaderboard(session, period)
 
 
 @router.post("/update")

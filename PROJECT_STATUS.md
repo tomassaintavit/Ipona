@@ -43,6 +43,8 @@ Este documento registra el estado vivo del proyecto. Se actualiza al completar t
 - [x] Ventana de fechas ±1 día para sincronización ESPN (corrige timezone mismatch) — 2026-09-02
 - [x] 18 ligas de fútbol: ligas principales + copas nacionales (ARG, ENG, ITA, ESP, GER, FRA) + UEFA — 2026-09-02
 - [x] Selección curada ajustada a 2–6 eventos/día — 2026-09-02
+- [x] Tabla por períodos (global / semanal / mensual) — 2026-09-02
+- [x] Batallas diarias: duelos 1v1 aleatorios (tríos si hay impar), la IA participa, mensaje del ganador, resolución automática — 2026-09-02
 
 ## Planned
 
@@ -52,6 +54,7 @@ Este documento registra el estado vivo del proyecto. Se actualiza al completar t
 - [ ] Mejora LLM: posición en tabla real de las ligas — Priority: Low
 - [ ] The Odds API como fuente complementaria de favoritos — Priority: Low
 - [ ] Notificaciones web push a usuarios ("hay eventos nuevos") — Priority: Low
+- [ ] Grafana Cloud free tier + logging JSON estructurado — Priority: Low (diferido)
 
 ---
 
@@ -99,7 +102,7 @@ Otras decisiones relevantes (sin ADR formal):
 
 | Metric | Current | Target | Trend |
 |--------|---------|--------|-------|
-| Tests | 70 passed | >80% cobertura | ↑ |
+| Tests | 79 passed | >80% cobertura | ↑ |
 | Costo mensual | $0 | $0 | → |
 | Disponibilidad | Best effort (free tiers) | — | → |
 
@@ -111,3 +114,4 @@ Otras decisiones relevantes (sin ADR formal):
 - Lecciones aprendidas del primer deploy: caracteres especiales en DATABASE_URL (% → escapar en Alembic), IPv4-only en Render → usar Session Pooler de Supabase, httpx era dependencia de runtime oculta por requirements-dev, ESPN lista partidos nocturnos UTC bajo fecha local de la liga
 - Fix timezone: `get_day_events` ahora consulta rango ±1 día (no solo la fecha UTC), corrigiendo la regresión donde partidos nocturnos quedaban fuera de la sincronización
 - ESPN soporta `dates=YYYYMMDD-YYYYMMDD` nativamente, reduciendo N requests por liga a 1 request por liga
+- Batallas: el emparejamiento se hace dentro del job de sync (06:00 UTC, idempotente por fecha); la resolución corre en el job de resultados. Modelo `battles` con `extra_user_id` para tríos. Ver `docs/reglas-del-juego.md`

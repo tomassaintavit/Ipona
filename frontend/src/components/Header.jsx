@@ -11,6 +11,11 @@ const ICONOS = {
       <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm3 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm9-8h-9v2h9v-2z" />
     </svg>
   ),
+  batallas: (
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
+      <path d="M12 2l1.2 3.1 3.3.3-2.5 2.2.7 3.2L12 9.2 9.3 10.8l.7-3.2-2.5-2.2 3.3-.3L12 2zM5 11l.8 2.1 2.2.2-1.7 1.5.5 2.2-1.8-1.2L3.2 17l.5-2.2L2 13.3l2.2-.2L5 11zm14 0l.8 2.1 2.2.2-1.7 1.5.5 2.2-1.8-1.2L18.2 17l.5-2.2-1.7-1.5 2.2-.2L19 11zM12 14l.9 2.3 2.4.2-1.8 1.6.6 2.4L12 19.5l-2.1 1l.6-2.4-1.8-1.6 2.4-.2L12 14z" />
+    </svg>
+  ),
   historico: (
     <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
       <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm1-13h-2v6l5.25 3.15 1-1.65-4.25-2.5V7z" />
@@ -32,6 +37,7 @@ export default function Header({ vista, onVista, onLogout }) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const botones = [
     { id: "eventos", label: "Eventos", icono: ICONOS.eventos },
+    { id: "batallas", label: "Batallas", icono: ICONOS.batallas },
     { id: "tabla", label: "Tabla", icono: ICONOS.tabla },
     { id: "historico", label: "Histórico", icono: ICONOS.historico },
     { id: "stats", label: "Estadísticas", icono: ICONOS.stats },

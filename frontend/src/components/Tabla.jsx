@@ -125,13 +125,15 @@ function Fila({ fila, max, index }) {
 
 export default function Tabla({ onToast }) {
   const [board, setBoard] = useState(null);
+  const [period, setPeriod] = useState("global");
 
   useEffect(() => {
-    api("/leaderboard")
+    setBoard(null);
+    api(`/leaderboard?period=${period}`)
       .then(setBoard)
       .catch((err) => onToast(err.message));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [period]);
 
   if (board === null) return <div className="cargando">Cargando tabla…</div>;
   if (board.length === 0)
@@ -147,6 +149,22 @@ export default function Tabla({ onToast }) {
           <p>Se puntúa al finalizar cada partido.</p>
         </div>
         <span className="chip-vivos">{board.length} jugadores</span>
+      </div>
+
+      <div className="tabs">
+        {[
+          { id: "global", label: "Global" },
+          { id: "weekly", label: "Semanal" },
+          { id: "monthly", label: "Mensual" },
+        ].map((t) => (
+          <button
+            key={t.id}
+            className={period === t.id ? "activo" : ""}
+            onClick={() => setPeriod(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {(() => {

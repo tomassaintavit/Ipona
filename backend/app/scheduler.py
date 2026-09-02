@@ -1,7 +1,9 @@
+import datetime as dt
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from app.battles.service import create_daily_battles, resolve_battles
 from app.core.config import get_settings
 from app.db.engine import create_engine, create_session_factory
 from app.events.service import sync_day_events
@@ -24,12 +26,11 @@ def _get_session_factory():
 
 
 async def job_sync_events():
-    import datetime as dt
-
     factory = _get_session_factory()
     async with factory() as session:
         events = await sync_day_events(session, ESPNProvider(), dt.datetime.now(dt.UTC).date())
-        logger.info("eventos sincronizados: %s", len(events))
+        battles = await create_daily_battles(session, dt.datetime.now(dt.UTC).date())
+        logger.info("eventos sincronizados: %s, battles creadas: %s", len(events), len(battles))
 
 
 async def job_llm_predictions():
@@ -45,7 +46,8 @@ async def job_update_results():
     factory = _get_session_factory()
     async with factory() as session:
         updated = await update_results(session, ESPNProvider())
-        logger.info("predicciones puntuadas: %s", updated)
+        resolved = await resolve_battles(session, dt.datetime.now(dt.UTC).date())
+        logger.info("predicciones puntuadas: %s, battles resueltas: %s", updated, resolved)
 
 
 scheduler = AsyncIOScheduler(timezone="UTC")

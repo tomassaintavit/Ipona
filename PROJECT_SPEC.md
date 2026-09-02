@@ -34,6 +34,7 @@ Ipona resuelve esto: un juego web de predicciones deportivas con tabla de posici
 4. Autenticación de usuarios (grupo privado <6)
 5. Jugador LLM que predice usando datos históricos/estadísticas y mejora con el tiempo
 6. Estadísticas: historial de aciertos, precisión por usuario y del LLM, rendimiento por deporte
+7. **Gamificación**: batallas diarias de cabeza a cabeza (duelos aleatorios 1v1 o trío), mensaje del ganador al perdedor, y tablas de posiciones por período (global / semanal / mensual)
 
 ---
 

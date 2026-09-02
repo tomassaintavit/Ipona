@@ -1,6 +1,6 @@
 import datetime as dt
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint
+from sqlalchemy import JSON, Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -66,6 +66,22 @@ class LLMCall(Base):
     prompt_tokens: Mapped[int] = mapped_column(Integer)
     completion_tokens: Mapped[int] = mapped_column(Integer)
     total_tokens: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[dt.datetime] = mapped_column(
+        DateTime(timezone=True), server_default="now()"
+    )
+
+
+class Battle(Base):
+    __tablename__ = "battles"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    battle_date: Mapped[dt.date] = mapped_column(Date)
+    user_a_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_b_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    extra_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="pendiente")
+    winner_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    message: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), server_default="now()"
     )

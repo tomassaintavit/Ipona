@@ -65,7 +65,8 @@ def _to_domain(event: SportEvent) -> DomainEvent:
     )
 
 
-async def get_leaderboard(session: AsyncSession) -> list[dict]:
+async def get_leaderboard(session: AsyncSession, period: str = "global") -> list[dict]:
+    conditions = [_period_condition(period)]
     rows = (
         await session.execute(
             select(
@@ -78,6 +79,7 @@ async def get_leaderboard(session: AsyncSession) -> list[dict]:
             )
             .outerjoin(Prediction, Prediction.user_id == User.id)
             .outerjoin(SportEvent, Prediction.event_id == SportEvent.id)
+            .where(*conditions)
             .group_by(User.id, User.username, User.is_llm, SportEvent.sport)
             .order_by(User.id)
         )
@@ -108,3 +110,15 @@ async def get_leaderboard(session: AsyncSession) -> list[dict]:
             }
         )
     return ranked
+
+
+def _period_condition(period: str):
+    now = dt.datetime.now(dt.UTC)
+    if period == "weekly":
+        start = now - dt.timedelta(days=now.weekday())
+        start = start.replace(hour=0, minute=0, second=0, microsecond=0)
+        return SportEvent.start_time_utc >= start
+    if period == "monthly":
+        start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        return SportEvent.start_time_utc >= start
+    return True
