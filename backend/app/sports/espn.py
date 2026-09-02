@@ -10,12 +10,23 @@ BASE_URL = "https://site.api.espn.com/apis/site/v2/sports"
 SPORT_PATHS: dict[Sport, list[str]] = {
     Sport.FOOTBALL: [
         "soccer/arg.1",
-        "soccer/conmebol.libertadores",
-        "soccer/conmebol.sudamericana",
         "soccer/eng.1",
         "soccer/esp.1",
         "soccer/ita.1",
+        "soccer/ger.1",
+        "soccer/fra.1",
+        "soccer/arg.copa",
+        "soccer/eng.fa",
+        "soccer/eng.league_cup",
+        "soccer/ita.coppa_italia",
+        "soccer/esp.copa_del_rey",
+        "soccer/ger.dfb_pokal",
+        "soccer/fra.coupe_de_france",
+        "soccer/conmebol.libertadores",
+        "soccer/conmebol.sudamericana",
         "soccer/uefa.champions",
+        "soccer/uefa.europa",
+        "soccer/uefa.europa.conf",
     ],
     Sport.BASKETBALL: ["basketball/nba"],
     Sport.F1: ["racing/f1"],
@@ -33,32 +44,42 @@ class ESPNProvider(SportsDataProvider):
         self._client = client or httpx.AsyncClient(base_url=BASE_URL)
 
     async def get_day_events(self, date: dt.date, sport: Sport) -> list[SportEvent]:
+        start = date - dt.timedelta(days=1)
+        end = date + dt.timedelta(days=1)
+        date_range = f"{start.strftime('%Y%m%d')}-{end.strftime('%Y%m%d')}"
+
+        seen: set[str] = set()
         events: list[SportEvent] = []
         for path in SPORT_PATHS[sport]:
-            data = await self._fetch_scoreboard(path, date)
+            data = await self._fetch_scoreboard(path, date_range)
             if data is None:
                 continue
             league = _league_name(data)
             for raw in data.get("events", []):
-                events.append(_parse_event(raw, sport, league))
+                eid = str(raw.get("id"))
+                if eid not in seen:
+                    seen.add(eid)
+                    events.append(_parse_event(raw, sport, league))
         return events
 
     async def get_event_result(self, event: SportEvent) -> EventResult:
         date = event.start_time_utc.date()
-        fechas = [date, date - dt.timedelta(days=1), date + dt.timedelta(days=1)]
-        for fecha in fechas:
-            for path in SPORT_PATHS[event.sport]:
-                data = await self._fetch_scoreboard(path, fecha)
-                if data is None:
-                    continue
-                for raw in data.get("events", []):
-                    if raw.get("id") == event.id:
-                        return _parse_result(raw, event)
+        start = date - dt.timedelta(days=1)
+        end = date + dt.timedelta(days=1)
+        date_range = f"{start.strftime('%Y%m%d')}-{end.strftime('%Y%m%d')}"
+
+        for path in SPORT_PATHS[event.sport]:
+            data = await self._fetch_scoreboard(path, date_range)
+            if data is None:
+                continue
+            for raw in data.get("events", []):
+                if raw.get("id") == event.id:
+                    return _parse_result(raw, event)
         raise LookupError(f"evento {event.id} no encontrado en ESPN")
 
-    async def _fetch_scoreboard(self, path: str, date: dt.date) -> dict | None:
+    async def _fetch_scoreboard(self, path: str, dates: str) -> dict | None:
         response = await self._client.get(
-            f"/{path}/scoreboard", params={"dates": date.strftime("%Y%m%d")}
+            f"/{path}/scoreboard", params={"dates": dates}
         )
         if response.status_code == 404:
             return None

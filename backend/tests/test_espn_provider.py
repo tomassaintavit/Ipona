@@ -202,7 +202,7 @@ async def test_get_event_result_positions_for_f1_race():
     assert result.positions[2] == "George Russell"
 
 
-async def test_evento_nocturno_se_busca_en_fecha_anterior():
+async def test_evento_nocturno_se_busca_en_rango_de_fechas():
     """Regresion: partido 00:15 UTC aparece en scoreboard del dia anterior en ESPN."""
     llamadas = []
 
@@ -210,7 +210,7 @@ async def test_evento_nocturno_se_busca_en_fecha_anterior():
         path = request.url.path
         fecha = request.url.params.get("dates")
         llamadas.append((path, fecha))
-        if path.endswith("/arg.1/scoreboard") and fecha == "20260824":
+        if path.endswith("/arg.1/scoreboard") and "20260824" in (fecha or ""):
             return httpx.Response(
                 200, json=_soccer_scoreboard("9", "post", True, 2, 1)
             )
@@ -232,7 +232,7 @@ async def test_evento_nocturno_se_busca_en_fecha_anterior():
 
     assert result.completed is True
     assert result.home_score == 2
-    assert any(f == "20260824" for _, f in llamadas)
+    assert any("20260824" in (f or "") for _, f in llamadas)
 
 
 async def test_get_event_result_raises_when_not_found():
@@ -252,3 +252,89 @@ async def test_get_event_result_raises_when_not_found():
 
     with pytest.raises(LookupError):
         await provider.get_event_result(event)
+
+
+async def test_get_day_events_usa_rango_de_fechas():
+    """Verifica que get_day_events envia un rango de fechas (YYYYMMDD-YYYYMMDD) a ESPN."""
+    llamadas = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        fecha = request.url.params.get("dates")
+        llamadas.append(fecha)
+        return httpx.Response(200, json={"leagues": [], "events": []})
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url=BASE_URL)
+    provider = ESPNProvider(client=client)
+
+    await provider.get_day_events(dt.date(2026, 8, 23), Sport.FOOTBALL)
+
+    assert len(llamadas) > 0
+    for fecha in llamadas:
+        assert "-" in fecha
+        assert fecha.startswith("20260822")
+        assert fecha.endswith("20260824")
+
+
+async def test_get_day_events_deduplica_eventos():
+    """Un evento que aparece en dos ligas se devuelve una sola vez."""
+    duplicate_scoreboard = {
+        "leagues": [{"name": "Liga"}],
+        "events": [
+            {
+                "id": "999",
+                "date": "2026-08-23T17:45Z",
+                "status": {"type": {"state": "pre", "completed": False}},
+                "competitions": [
+                    {
+                        "competitors": [
+                            {"homeAway": "home", "team": {"displayName": "A"}},
+                            {"homeAway": "away", "team": {"displayName": "B"}},
+                        ]
+                    }
+                ],
+            }
+        ],
+    }
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json=duplicate_scoreboard)
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url=BASE_URL)
+    provider = ESPNProvider(client=client)
+
+    events = await provider.get_day_events(dt.date(2026, 8, 23), Sport.FOOTBALL)
+
+    ids = [e.id for e in events]
+    assert ids.count("999") == 1
+
+
+async def test_get_event_result_usa_rango():
+    """Verifica que get_event_result envia un rango de fechas a ESPN."""
+    llamadas = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        fecha = request.url.params.get("dates")
+        llamadas.append(fecha)
+        if request.url.path.endswith("/arg.1/scoreboard"):
+            return httpx.Response(
+                200, json=_soccer_scoreboard("9", "post", True, 2, 1)
+            )
+        return httpx.Response(200, json={"leagues": [], "events": []})
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url=BASE_URL)
+    provider = ESPNProvider(client=client)
+    from app.sports.models import SportEvent
+
+    event = SportEvent(
+        id="9",
+        sport=Sport.FOOTBALL,
+        league="Liga",
+        start_time_utc=dt.datetime(2026, 8, 23, 17, 45, tzinfo=dt.UTC),
+        status=EventStatus.FINAL,
+    )
+
+    result = await provider.get_event_result(event)
+
+    assert result.completed is True
+    assert len(llamadas) > 0
+    assert any("-" in f for f in llamadas)

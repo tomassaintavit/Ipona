@@ -7,7 +7,7 @@ from app.db.models import SportEvent
 from app.sports.models import EventStatus, Sport, SportEvent as DomainEvent
 from app.sports.provider import SportsDataProvider
 
-MAX_DAILY_EVENTS = 10
+MAX_DAILY_EVENTS = 6
 MIN_DAILY_EVENTS = 2
 MAX_PER_LEAGUE = 3
 

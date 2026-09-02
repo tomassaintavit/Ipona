@@ -112,7 +112,7 @@ backend/
 │   ├── auth/             # registro y login
 │   ├── users/            # perfil actual
 │   ├── sports/           # adaptador ESPN (provider pattern)
-│   ├── events/           # sincronización y selección curada diaria (2–10)
+│   ├── events/           # sincronización y selección curada diaria (2–6)
 │   ├── predictions/      # alta y consulta de predicciones
 │   ├── scoring/          # puntos, actualización de resultados, tabla
 │   ├── llm/              # jugador IA (Cerebras/Groq + contexto histórico)

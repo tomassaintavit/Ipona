@@ -21,7 +21,7 @@ def make_event(id, league, hours_from_now, status="programado"):
     )
 
 
-def test_selects_max_ten_events():
+def test_selects_max_six_events():
     leagues = ["Liga A", "Liga B", "Liga C", "Liga D"]
     events = [
         make_event(i * 5 + j, leagues[i], 1 + i) for i in range(4) for j in range(5)
@@ -29,7 +29,7 @@ def test_selects_max_ten_events():
 
     selected = select_daily_events(events, now=NOW)
 
-    assert len(selected) == 10
+    assert len(selected) == 6
 
 
 def test_respects_league_diversity_cap():

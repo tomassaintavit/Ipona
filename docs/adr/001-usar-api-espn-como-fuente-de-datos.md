@@ -17,7 +17,7 @@ Ipona necesita una fuente de datos de partidos/eventos próximos y resultados pa
 - Formula 1 (con resultados por posición/podio)
 
 Restricciones duras: costo $0 obligatorio, sin tarjeta de crédito, grupo <6 usuarios,
-selección curada de 2–10 eventos/día (bajo volumen de consultas).
+selección curada de 2–6 eventos/día (bajo volumen de consultas).
 
 Se evaluaron empíricamente 4 proveedores (spike del 2026-08-23):
 
@@ -73,7 +73,7 @@ Detalles de implementación:
 - Cambio o cierre de endpoints no oficiales (mitigación: capa adaptadora +
   api-sports.io documentado como plan B; migración = solo reimplementar el adaptador)
 - Rate limiting no documentado ante abuso (mitigación: cache + polling programado
-  de baja frecuencia, coherente con selección curada de 2–10 eventos/día)
+  de baja frecuencia, coherente con selección curada de 2–6 eventos/día)
 
 ### Tradeoffs
 

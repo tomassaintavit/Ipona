@@ -3,7 +3,7 @@
 ## Qué es
 
 Juego de predicciones deportivas para un grupo privado de amigos (<6 jugadores).
-Cada día el sistema muestra entre 2 y 10 eventos seleccionados (nunca todos los
+Cada día el sistema muestra entre 2 y 6 eventos seleccionados (nunca todos los
 partidos del día). Los jugadores predicen el resultado antes del inicio de cada
 evento. Una IA llamada "ipona-ia" también predice y compite en la tabla como un
 jugador más.

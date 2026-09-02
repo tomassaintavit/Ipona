@@ -29,7 +29,7 @@ Ipona resuelve esto: un juego web de predicciones deportivas con tabla de posici
 ## Objectives
 
 1. Predicciones de partidos/eventos próximos de múltiples deportes vía APIs deportivas
-2. **Selección curada de eventos**: el sistema muestra entre 2 y 10 partidos por día (no todos los del día), para minimizar la carga de predicción del usuario
+2. **Selección curada de eventos**: el sistema muestra entre 2 y 6 partidos por día (no todos los del día), para minimizar la carga de predicción del usuario
 3. Tabla de posiciones con puntuación automática al finalizar partidos
 4. Autenticación de usuarios (grupo privado <6)
 5. Jugador LLM que predice usando datos históricos/estadísticas y mejora con el tiempo
@@ -45,7 +45,7 @@ Ipona resuelve esto: un juego web de predicciones deportivas con tabla de posici
 - ❌ Predicciones en vivo durante el partido (solo pre-partido)
 - ❌ Streaming o datos minuto a minuto
 - ❌ Integraciones sociales (chat, compartir en redes)
-- ❌ Mostrar todos los partidos del día (solo una selección curada de 2 a 10 por día)
+- ❌ Mostrar todos los partidos del día (solo una selección curada de 2 a 6 por día)
 
 ---
 
@@ -93,7 +93,7 @@ Monolito modular con API REST:
 - Servicios 100% gratuitos (costo $0)
 - Interfaz en español
 - Cerebras y Groq como proveedores LLM
-- Selección curada de 2 a 10 eventos por día (no catálogo completo)
+- Selección curada de 2 a 6 eventos por día (no catálogo completo)
 
 ## Forbidden Technologies
 
@@ -119,7 +119,7 @@ Monolito modular con API REST:
 
 # Success Criteria
 
-- El grupo puede registrarse/loguearse y predecir los eventos seleccionados del día (entre 2 y 10)
+- El grupo puede registrarse/loguearse y predecir los eventos seleccionados del día (entre 2 y 6)
 - Resultados calculados automáticamente; tabla siempre actualizada
 - Scoring por marcador exacto **y** por acierto de resultado (gana/pierde/empata) en fútbol y NBA; formato propio para F1 (podio/posiciones)
 - El LLM participa en la tabla como un jugador más y sus predicciones usan datos históricos
